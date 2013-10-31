@@ -30,3 +30,6 @@ IDEAS / TODOS
 
 * Optionally use different source of random data for temporary password
   generation
+
+* Optionally check password complexity at login and enforce new password
+  for weak passwords
