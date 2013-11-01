@@ -8,6 +8,10 @@ setup(
     description='Enforces a couple of common authentication policies for the '
                 'Django web framework.',
     author='Fox-IT B.V.',
+    author_email='fox@fox-it.com',
+    maintainer='Rudolph Froger',
+    maintainer_email='rudolphfroger@estrate.nl',
+    url='https://github.com/rudolphfroger/django_auth_policy',
     license='BSD',
     packages=['django_auth_policy'],
     install_requires=['Django>=1.5'],
