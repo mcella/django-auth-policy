@@ -476,15 +476,15 @@ class PasswordChangeTests(TestCase):
             'new_password2': short_passwd[:-1]})
 
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['new_password1'],
-                         [form.error_messages['password_min_length']])
+        msg = dap_settings.PASSWORD_MIN_LENGTH_TEXT.format(
+            length=dap_settings.PASSWORD_MIN_LENGTH)
+        self.assertEqual(form.errors['new_password1'], [msg])
 
         # Longer password does work
         form = StrictPasswordChangeForm(self.user, data={
             'old_password': 'password',
             'new_password1': short_passwd,
             'new_password2': short_passwd})
-
         self.assertTrue(form.is_valid())
 
         # Check correct PasswordChange items were created
@@ -510,8 +510,9 @@ class PasswordChangeTests(TestCase):
                 'new_password2': passwd})
             failing_rule = rules[-1]
             self.assertFalse(form.is_valid())
-            self.assertEqual(form.errors['new_password1'], [
-                form.error_messages['password_complexity'] % failing_rule])
+            err_msg = dap_settings.PASSWORD_COMPLEXITY_TEXT.format(
+                rule_text=failing_rule['text'])
+            self.assertEqual(form.errors['new_password1'], [err_msg])
 
             rules.rotate(1)
 

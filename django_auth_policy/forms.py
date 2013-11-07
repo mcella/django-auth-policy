@@ -9,6 +9,8 @@ from django.contrib.auth.forms import (AuthenticationForm, SetPasswordForm,
 
 from django_auth_policy.models import PasswordChange, LoginAttempt
 from django_auth_policy import settings as dap_settings
+from django_auth_policy.validators import (password_min_length,
+                                           password_complexity)
 from django_auth_policy.checks import (disable_expired_users, locked_username,
                                        locked_remote_addr)
 
@@ -118,32 +120,11 @@ class StrictAuthenticationForm(AuthenticationForm):
 
 
 class StrictSetPasswordForm(SetPasswordForm):
-    error_messages = dict(PasswordChangeForm.error_messages, **{
-        'password_min_length': dap_settings.PASSWORD_MIN_LENGTH_TEXT,
-        'password_complexity': _("Passwords must have %(text)s")
-        })
-
     def clean_new_password1(self):
         pw = self.cleaned_data.get('new_password1')
-        if not pw:
-            return pw
-
-        # Minimum password length check
-        if (dap_settings.PASSWORD_MIN_LENGTH is not None and
-                len(pw) < dap_settings.PASSWORD_MIN_LENGTH):
-
-            raise forms.ValidationError(
-                self.error_messages['password_min_length'],
-                'password_min_length')
-
-        # Password complexity check
-        if dap_settings.PASSWORD_COMPLEXITY is not None:
-            pw_set = set(pw)
-            for rule in dap_settings.PASSWORD_COMPLEXITY:
-                if not pw_set.intersection(rule['chars']):
-                    raise forms.ValidationError(
-                        self.error_messages['password_complexity'] % rule,
-                        'password_complexity')
+        if pw:
+            password_min_length(pw)
+            password_complexity(pw)
 
         return pw
 

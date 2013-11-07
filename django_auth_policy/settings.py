@@ -48,12 +48,8 @@ FAILED_AUTH_LOCKOUT_PERIOD = getattr(settings, 'FAILED_AUTH_LOCKOUT_PERIOD',
 PASSWORD_MIN_LENGTH = getattr(settings, 'PASSWORD_MIN_LENGTH', 10)
 
 # Minimum password length text
-if PASSWORD_MIN_LENGTH:
-    PASSWORD_MIN_LENGTH_TEXT = getattr(settings, 'PASSWORD_MIN_LENGTH_TEXT', _(
-        'Passwords must be at least %d characters in length.')
-        % PASSWORD_MIN_LENGTH)
-else:
-    PASSWORD_MIN_LENGTH_TEXT = ''
+PASSWORD_MIN_LENGTH_TEXT = getattr(settings, 'PASSWORD_MIN_LENGTH_TEXT',
+    _('Passwords must be at least {length} characters in length.'))
 
 # Additional password strength requirements
 # Define a list of character requirements, each requirement defines:
@@ -86,6 +82,9 @@ PASSWORD_COMPLEXITY = getattr(settings, 'PASSWORD_COMPLEXITY', (
      'min': 1,
      'text': _('at least one symbol')},
     ))
+
+# Text displayed when password doesn't meet complexity requirements
+PASSWORD_COMPLEXITY_TEXT = _('Passwords must have {rule_text}')
 
 # Characters used to generate temporary passwords
 TEMP_PASSWORD_CHARS = getattr(settings, 'TEMP_PASSWORD_CHARS',
