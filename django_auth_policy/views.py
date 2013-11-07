@@ -33,7 +33,8 @@ def login(request, template_name='registration/login.html',
     Uses the StrictAuthenticationForm and triggers a password change after
     login when required.
     """
-    redirect_to = request.REQUEST.get(redirect_field_name, '')
+    redirect_to = request.POST.get(redirect_field_name,
+                                   request.GET.get(redirect_field_name, ''))
 
     if request.method == "POST":
         form = authentication_form(request, data=request.POST)
