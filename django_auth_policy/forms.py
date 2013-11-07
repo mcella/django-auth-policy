@@ -8,7 +8,6 @@ from django.contrib.auth.forms import (AuthenticationForm, SetPasswordForm,
                                        PasswordChangeForm)
 
 from django_auth_policy.models import PasswordChange, LoginAttempt
-from django_auth_policy import settings as dap_settings
 from django_auth_policy.validators import (password_min_length,
                                            password_complexity)
 from django_auth_policy.checks import (disable_expired_users, locked_username,
@@ -95,8 +94,8 @@ class StrictAuthenticationForm(AuthenticationForm):
 
         if not self.user_cache.is_active:
             logger.warning(u'Authentication failure, username=%s, '
-                            'address=%s, user inactive.',
-                            username, remote_addr)
+                           'address=%s, user inactive.',
+                           username, remote_addr)
             attempt.save()
             raise forms.ValidationError(
                 self.error_messages['inactive'],
@@ -125,7 +124,6 @@ class StrictSetPasswordForm(SetPasswordForm):
         if pw:
             password_min_length(pw)
             password_complexity(pw)
-
         return pw
 
     def is_valid(self):
@@ -134,10 +132,11 @@ class StrictSetPasswordForm(SetPasswordForm):
             PasswordChange.objects.create(user=self.user, successful=valid,
                                           is_temporary=False)
             if valid:
-                logger.info('Password change successful for user %s', self.user)
+                logger.info('Password change successful for user %s',
+                            self.user)
             else:
-                logger.info('Password change failed for user %s', self.user)
-
+                logger.info('Password change failed for user %s',
+                            self.user)
         return valid
 
 
