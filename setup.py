@@ -2,6 +2,14 @@
 
 from setuptools import setup
 
+
+install_requires = ['Django>=1.5']
+try:
+    from collections import OrderedDict
+except ImportError:
+    install_requires.append('ordereddict>=1.1')
+
+
 setup(
     name='django-auth-policy',
     version='0.4',
@@ -16,7 +24,7 @@ setup(
     packages=['django_auth_policy'],
     package_data={'django_auth_policy': ['locale/*/LC_MESSAGES/*.mo',
                                          'locale/*/LC_MESSAGES/*.po']},
-    install_requires=['Django>=1.5'],
+    install_requires=install_requires,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
