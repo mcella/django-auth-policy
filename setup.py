@@ -19,7 +19,7 @@ setup(
     author_email='fox@fox-it.com',
     maintainer='Rudolph Froger',
     maintainer_email='rudolphfroger@estrate.nl',
-    url='https://github.com/rudolphfroger/django_auth_policy',
+    url='https://github.com/rudolphfroger/django-auth-policy',
     license='BSD',
     packages=['django_auth_policy'],
     package_data={'django_auth_policy': ['locale/*/LC_MESSAGES/*.mo',
