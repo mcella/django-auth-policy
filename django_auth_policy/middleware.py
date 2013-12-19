@@ -3,7 +3,9 @@ import logging
 from django.core.urlresolvers import resolve, reverse
 
 from django_auth_policy.forms import StrictPasswordChangeForm
-from django_auth_policy.checks import enforce_password_change
+from django_auth_policy.utils import update_session
+from django_auth_policy.settings import (CHANGE_PASSWORD_VIEW_NAME,
+    LOGIN_VIEW_NAME, LOGOUT_VIEW_NAME)
 
 
 logger = logging.getLogger(__name__)
@@ -18,9 +20,9 @@ class AuthenticationPolicyMiddleware(object):
     This is enforced using middleware to prevent users from accessing any page
     handled by Django without the policy being enforced.
     """
-    change_password_path = reverse('password_change')
-    login_path = reverse('login')
-    logout_path = reverse('logout')
+    change_password_path = reverse(CHANGE_PASSWORD_VIEW_NAME)
+    login_path = reverse(LOGIN_VIEW_NAME)
+    logout_path = reverse(LOGOUT_VIEW_NAME)
 
     def process_request(self, request):
         assert hasattr(request, 'user'), (
@@ -57,10 +59,8 @@ class AuthenticationPolicyMiddleware(object):
         if not request.session.get('password_change_enforce', False):
             return response
 
-        enforce, is_exp, is_temp = enforce_password_change(request.user)
-        request.session['password_change_enforce'] = enforce
-        request.session['password_is_expired'] = is_exp
-        request.session['password_is_temporary'] = is_temp
+        update_session(request.session, request.user)
+
         return response
 
     def password_change(self, request):

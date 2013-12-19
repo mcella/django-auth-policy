@@ -14,7 +14,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
 from django.contrib.sites.models import get_current_site
 
 from django_auth_policy.forms import StrictAuthenticationForm
-from django_auth_policy.checks import enforce_password_change
+from django_auth_policy.utils import update_session
 
 
 logger = logging.getLogger(__name__)
@@ -47,24 +47,8 @@ def login(request, template_name='registration/login.html',
             # Okay, security check complete. Log the user in.
             auth_login(request, form.get_user())
 
-            # Check for temporary or expired passwords and store in session
-            # The middleware should enforce a password change in next request
-            enforce, is_exp, is_temp = enforce_password_change(form.get_user())
-            request.session['password_change_enforce'] = enforce
-            request.session['password_is_expired'] = is_exp
-            request.session['password_is_temporary'] = is_temp
-
-            # Log password enforcement
-            if enforce:
-                if is_temp:
-                    logger.info(u'User %s must change temporary password',
-                                request.user)
-                if is_exp:
-                    logger.info(u'User %s must change expired password',
-                                request.user)
-                if not is_temp and not is_exp:
-                    logger.info(u'User %s must change password',
-                                request.user)
+            # Update session with Django Auth Policy data
+            update_session(request.session, form.get_user())
 
             return HttpResponseRedirect(redirect_to)
     else:

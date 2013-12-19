@@ -99,3 +99,9 @@ TEMP_PASSWORD_LENGTH = getattr(settings, 'TEMP_PASSWORD_LENGTH', 12)
 # authentication policies on the admin interface. Set this to False when
 # django_auth_policy shouldn't replace UserAdmin.
 REPLACE_AUTH_USER_ADMIN = getattr(settings, 'REPLACE_AUTH_USER_ADMIN', True)
+
+# View names used for reversing URLs
+CHANGE_PASSWORD_VIEW_NAME = getattr(settings, 'CHANGE_PASSWORD_VIEW_NAME',
+                                    'password_change')
+LOGIN_VIEW_NAME = getattr(settings, 'LOGIN_VIEW_NAME', 'login')
+LOGOUT_VIEW_NAME = getattr(settings, 'LOGOUT_VIEW_NAME', 'logout')
