@@ -23,9 +23,6 @@ IDEAS / TODOS
 
   Filter this list based on the other policy rules.
 
-* Optionally prevent (case insensitive) username, first_name, last_name and
-  email (before '@' and domainname parts below the TLD) in new passwords
-
 * Optionally restrict domain names of the email addresses of users
 
 * Optionally use different source of random data for temporary password
@@ -33,3 +30,8 @@ IDEAS / TODOS
 
 * Optionally check password complexity at login and enforce new password
   for weak passwords
+
+* Do not allow name of the site and domainname of the site in passwords
+
+* Optionally measure entropy of passwords
+  Research: any good enough algorithms available?
