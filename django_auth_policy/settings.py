@@ -14,6 +14,10 @@ from django.utils.translation import ugettext as _
 # Set to None to disable this feature
 MAX_PASSWORD_AGE = getattr(settings, 'MAX_PASSWORD_AGE', 30)
 
+MAX_PASSWORD_AGE_TEXT = getattr(settings, 'MAX_PASSWORD_AGE_TEXT',
+                                _('One is required to change passwords '
+                                  'every {age} days.'))
+
 # By default a password change is enforced when a user has no password change
 # history
 ALLOW_EMPTY_PASSWORD_HISTORY = getattr(settings,
@@ -84,7 +88,8 @@ PASSWORD_COMPLEXITY = getattr(settings, 'PASSWORD_COMPLEXITY', (
     ))
 
 # Text displayed when password doesn't meet complexity requirements
-PASSWORD_COMPLEXITY_TEXT = _('Passwords must have {rule_text}')
+PASSWORD_COMPLEXITY_TEXT = getattr(settings, 'PASSWORD_COMPLEXITY_TEXT',
+    _('Passwords must have {rule_text}.'))
 
 # Characters used to generate temporary passwords
 TEMP_PASSWORD_CHARS = getattr(settings, 'TEMP_PASSWORD_CHARS',
