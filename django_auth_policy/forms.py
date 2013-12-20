@@ -8,12 +8,12 @@ except ImportError:
 from django import forms
 from django.utils.translation import ugettext as _
 from django.contrib.auth import authenticate
-from django.contrib.auth.forms import (AuthenticationForm, SetPasswordForm,
-                                       PasswordChangeForm)
+from django.contrib.auth.forms import AuthenticationForm
 
 from django_auth_policy.models import PasswordChange, LoginAttempt
 from django_auth_policy.validators import (password_min_length,
-                                           password_complexity)
+                                           password_complexity,
+                                           password_user_attrs)
 from django_auth_policy.checks import (disable_expired_users, locked_username,
                                        locked_remote_addr)
 
@@ -148,13 +148,37 @@ class StrictAuthenticationForm(AuthenticationForm):
         return self.cleaned_data
 
 
-class StrictSetPasswordForm(SetPasswordForm):
+class StrictSetPasswordForm(forms.Form):
+    error_messages = {
+        'password_mismatch': _("The two password fields didn't match."),
+        }
+    new_password1 = forms.CharField(label=_("New password"),
+                                    widget=forms.PasswordInput)
+    new_password2 = forms.CharField(label=_("New password confirmation"),
+                                    widget=forms.PasswordInput)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(StrictSetPasswordForm, self).__init__(*args, **kwargs)
+
     def clean_new_password1(self):
         pw = self.cleaned_data.get('new_password1')
         if pw:
             password_min_length(pw)
             password_complexity(pw)
+            password_user_attrs(pw, self.user)
         return pw
+
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get('new_password1')
+        password2 = self.cleaned_data.get('new_password2')
+        if password1 and password2:
+            if password1 != password2:
+                raise forms.ValidationError(
+                    self.error_messages['password_mismatch'],
+                    code='password_mismatch',
+                )
+        return password2
 
     def is_valid(self):
         valid = super(StrictSetPasswordForm, self).is_valid()
@@ -169,12 +193,35 @@ class StrictSetPasswordForm(SetPasswordForm):
                             self.user)
         return valid
 
+    def save(self, commit=True):
+        self.user.set_password(self.cleaned_data['new_password1'])
+        if commit:
+            self.user.save()
+        return self.user
 
-class StrictPasswordChangeForm(StrictSetPasswordForm, PasswordChangeForm):
-    error_messages = dict(StrictSetPasswordForm.error_messages, **{
+
+class StrictPasswordChangeForm(StrictSetPasswordForm):
+    error_messages = {
+        'password_mismatch': _("The two password fields didn't match."),
+        'password_incorrect': _("Your old password was entered incorrectly. "
+                                "Please enter it again."),
         'password_unchanged': _("The new password must not be the same as "
                                 "the old password"),
-        })
+        }
+    old_password = forms.CharField(label=_("Old password"),
+                                   widget=forms.PasswordInput)
+
+    def clean_old_password(self):
+        """
+        Validates that the old_password field is correct.
+        """
+        old_password = self.cleaned_data["old_password"]
+        if not self.user.check_password(old_password):
+            raise forms.ValidationError(
+                self.error_messages['password_incorrect'],
+                code='password_incorrect',
+            )
+        return old_password
 
     def clean_new_password1(self):
         pw = super(StrictPasswordChangeForm, self).clean_new_password1()
@@ -188,6 +235,7 @@ class StrictPasswordChangeForm(StrictSetPasswordForm, PasswordChangeForm):
                 'password_unchanged')
 
         return pw
+
 
 StrictPasswordChangeForm.base_fields = OrderedDict(
     (k, StrictPasswordChangeForm.base_fields[k])

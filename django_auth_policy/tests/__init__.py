@@ -9,7 +9,8 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 
 from django_auth_policy.forms import (StrictAuthenticationForm,
-                                      StrictPasswordChangeForm)
+                                      StrictPasswordChangeForm,
+                                      StrictSetPasswordForm)
 from django_auth_policy.models import LoginAttempt, PasswordChange
 from django_auth_policy.backends import StrictModelBackend
 from django_auth_policy import settings as dap_settings
@@ -529,3 +530,25 @@ class PasswordChangeTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['new_password1'],
                          [form.error_messages['password_unchanged']])
+
+    def test_password_user_attrs(self):
+        self.user.username = 'rf'
+        self.user.email = 'rf@example.com'
+        self.user.first_name = 'Rudolph'
+        self.user.save()
+
+        passwds = [
+            ('AbcDef#12Rudolph', False),
+            ('1234rf#examplE', False),
+            ('Rudolph#12345', False),
+            # Short pieces are allowed, like 'rf':
+            ('rf54321#AbCd', True),
+        ]
+        for passwd, valid in passwds:
+            form = StrictSetPasswordForm(self.user, data={
+                'new_password1': passwd,
+                'new_password2': passwd})
+            self.assertEqual(form.is_valid(), valid)
+            if not valid:
+                self.assertEqual(form.errors['new_password1'],
+                                 [dap_settings.PASSWORD_USER_ATTRS_TEXT])

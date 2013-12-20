@@ -91,6 +91,15 @@ PASSWORD_COMPLEXITY = getattr(settings, 'PASSWORD_COMPLEXITY', (
 PASSWORD_COMPLEXITY_TEXT = getattr(settings, 'PASSWORD_COMPLEXITY_TEXT',
     _('Passwords must have {rule_text}.'))
 
+
+# User attributes that are not allowed in passwords
+# Set to None to disable this requirement
+PASSWORD_USER_ATTRS = getattr(settings, 'PASSWORD_USER_ATTRS',
+                              ['email', 'first_name', 'last_name', 'username'])
+PASSWORD_USER_ATTRS_TEXT = getattr(settings, 'PASSWORD_USER_ATTRS_TEXT',
+                                   _('Passwords are not allowed to contain '
+                                     '(pieces of) your name or email.'))
+
 # Characters used to generate temporary passwords
 TEMP_PASSWORD_CHARS = getattr(settings, 'TEMP_PASSWORD_CHARS',
                               'abcdefghijlkmnopqrstuvwxyz'

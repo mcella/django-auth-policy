@@ -63,4 +63,10 @@ def password_policy_texts():
             'caption': '',
         })
 
+    if dap_settings.PASSWORD_USER_ATTRS:
+        rules.append({
+            'text': _(dap_settings.PASSWORD_USER_ATTRS_TEXT),
+            'caption': '',
+        })
+
     return rules

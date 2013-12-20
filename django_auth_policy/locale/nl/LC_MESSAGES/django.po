@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-20 10:44+0100\n"
+"POT-Creation-Date: 2013-12-20 15:45+0100\n"
 "PO-Revision-Date: 2013-11-07 17:45+0100\n"
 "Last-Translator: Rudolph Froger <rudolphfroger@estrate.nl>\n"
 "Language: Dutch\n"
@@ -43,9 +43,31 @@ msgstr ""
 "Uw account is vergrendeld. Neem contact op met uw gebruikersbeheerder voor "
 "meer informatie."
 
-#: forms.py:175
+#: forms.py:153 forms.py:205
+msgid "The two password fields didn't match."
+msgstr "De twee ingevulde wachtwoorden zijn niet gelijk."
+
+#: forms.py:155
+msgid "New password"
+msgstr "Nieuw wachtwoord"
+
+#: forms.py:157
+msgid "New password confirmation"
+msgstr "Bevestig nieuw wachtwoord"
+
+#: forms.py:206
+msgid "Your old password was entered incorrectly. Please enter it again."
+msgstr ""
+"Uw oude wachtwoord is niet correct ingevoerd. Voert u het alstublieft "
+"opnieuw in."
+
+#: forms.py:208
 msgid "The new password must not be the same as the old password"
 msgstr "Het nieuwe wachtwoord mag niet hetzelfde zijn als het oude wachtwoord"
+
+#: forms.py:211
+msgid "Old password"
+msgstr "Oud wachtwoord"
 
 #: models.py:52
 msgid "username"
@@ -165,6 +187,11 @@ msgstr "minimaal één symbool"
 #, python-brace-format
 msgid "Passwords must have {rule_text}."
 msgstr "Wachtwoorden moeten {rule_text} hebben."
+
+#: settings.py:100
+msgid "Passwords are not allowed to contain (pieces of) your name or email."
+msgstr ""
+"Wachtwoorden mogen geen (onderdelen van) uw naam of e-mailadres bevatten."
 
 #: user_admin.py:29
 #: templates/admin/django_auth_policy/set_temporary_password.html:19

@@ -1,3 +1,6 @@
+import unicodedata
+import re
+
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 
@@ -24,3 +27,45 @@ def password_complexity(value):
             msg = _(dap_settings.PASSWORD_COMPLEXITY_TEXT).format(
                 rule_text=_(rule['text']))
             raise ValidationError(msg, 'password_complexity')
+
+
+def _normalize_unicode(value):
+    value = unicodedata.normalize('NFKD', unicode(value))
+    return value.encode('ascii', 'ignore').strip().lower()
+
+
+def password_user_attrs(value, user):
+    """ Validate if password doesn't contain values from a list of user
+    attributes. Every attribute will be normalized into ascii and split
+    on non alphanumerics.
+
+    Use this in the clean method of password forms
+
+    `value`: password
+    `user`: user object with attributes
+
+    Example, which would raise a ValidationError:
+
+        user.first_name = 'John'
+        password_user_attrs('johns_password', user)
+    """
+    if not dap_settings.PASSWORD_USER_ATTRS:
+        return
+
+    simple_pass = _normalize_unicode(value)
+    _non_alphanum = re.compile(r'[^a-z0-9]')
+    for attr in dap_settings.PASSWORD_USER_ATTRS:
+        v = getattr(user, attr, None)
+        if not attr or len(attr) < 4:
+            continue
+
+        v = _normalize_unicode(v)
+
+        for piece in _non_alphanum.split(v):
+            if len(piece) < 4:
+                continue
+
+            if piece in simple_pass:
+                msg = _(dap_settings.PASSWORD_USER_ATTRS_TEXT).format(
+                    piece=piece)
+                raise ValidationError(msg, 'password_user_attrs')
