@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-20 10:35+0100\n"
+"POT-Creation-Date: 2013-12-20 10:44+0100\n"
 "PO-Revision-Date: 2013-11-07 17:45+0100\n"
 "Last-Translator: Rudolph Froger <rudolphfroger@estrate.nl>\n"
 "Language: Dutch\n"
@@ -28,7 +28,7 @@ msgid ""
 "Please enter a correct username and password. Note that both fields may be "
 "case-sensitive."
 msgstr ""
-"Voor een correcte gebruikersnaam en wachtwoord in. Let op dat beide velden "
+"Voer een correcte gebruikersnaam en wachtwoord in. Let op dat beide velden "
 "hoofdlettergevoelig zijn."
 
 #: forms.py:28
