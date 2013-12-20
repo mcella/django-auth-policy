@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-07 18:05+0100\n"
+"POT-Creation-Date: 2013-12-20 08:57+0100\n"
 "PO-Revision-Date: 2013-11-07 17:45+0100\n"
 "Last-Translator: Rudolph Froger <rudolphfroger@estrate.nl>\n"
 "Language: Dutch\n"
@@ -23,7 +23,19 @@ msgstr "%s mislukte pogingen ontgrendeld"
 msgid "Unlock"
 msgstr "Ontgrendel"
 
-#: forms.py:23 forms.py:25
+#: forms.py:26
+msgid ""
+"Please enter a correct username and password. Note that both fields may be "
+"case-sensitive."
+msgstr ""
+"Voor een correcte gebruikersnaam en wachtwoord in. Let op dat beide velden "
+"hoofdlettergevoelig zijn."
+
+#: forms.py:28
+msgid "This account is inactive."
+msgstr "Dit account is niet actief."
+
+#: forms.py:29 forms.py:31
 msgid ""
 "Your account has been locked. Contact your user administrator for more "
 "information."
@@ -31,7 +43,7 @@ msgstr ""
 "Uw account is vergrendeld. Neem contact op met uw gebruikersbeheerder voor "
 "meer informatie."
 
-#: forms.py:145
+#: forms.py:173
 msgid "The new password must not be the same as the old password"
 msgstr "Het nieuwe wachtwoord mag niet hetzelfde zijn als het oude wachtwoord"
 

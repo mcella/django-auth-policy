@@ -21,17 +21,20 @@ from django_auth_policy.checks import (disable_expired_users, locked_username,
 logger = logging.getLogger(__name__)
 
 
-# Extend Authentication form error messages
-auth_error_messages = dict(AuthenticationForm.error_messages, **{
+# Authentication form error messages
+auth_error_messages = {
+    'invalid_login': _("Please enter a correct username and password. "
+                       "Note that both fields may be case-sensitive."),
+    'inactive': _("This account is inactive."),
     'username_locked_out': _('Your account has been locked. Contact your '
                              'user administrator for more information.'),
     'address_locked_out': _('Your account has been locked. Contact your '
-                            'user administrator for more information.')})
+                            'user administrator for more information.')
+}
 
 
 def pre_auth_checks(username, password, remote_addr, host,
-                    error_messages=auth_error_messages,
-                    username_fieldname=_('username')):
+                    error_messages=auth_error_messages):
     """ Raises ValidationError on failed login attempts
     Returns valid user instance or None
     """
@@ -55,9 +58,7 @@ def pre_auth_checks(username, password, remote_addr, host,
                        remote_addr)
         attempt.save()
         raise forms.ValidationError(
-            error_messages['invalid_login'] % {
-                'username': username_fieldname},
-            code='invalid_login')
+            error_messages['invalid_login'], code='invalid_login')
 
     if not password:
         logger.warning(u'Authentication failure, username=%s, '
@@ -65,33 +66,27 @@ def pre_auth_checks(username, password, remote_addr, host,
                        username, remote_addr)
         attempt.save()
         raise forms.ValidationError(
-            error_messages['invalid_login'] % {
-                'username': username_fieldname},
-            code='invalid_login')
+            error_messages['invalid_login'], code='invalid_login')
 
     if locked_username(username):
         logger.warning(u'Authentication failure, username=%s, address=%s, '
                        'username locked', username, remote_addr)
         attempt.save()
         raise forms.ValidationError(
-            error_messages['username_locked_out'],
-            'username_locked_out')
+            error_messages['username_locked_out'], code='username_locked_out')
 
     if locked_remote_addr(remote_addr):
         logger.warning(u'Authentication failure, username=%s, address=%s, '
                        'address locked', username, remote_addr)
         attempt.save()
         raise forms.ValidationError(
-            error_messages['address_locked_out'],
-            'address_locked_out')
+            error_messages['address_locked_out'], code='address_locked_out')
 
     disable_expired_users()
 
     return attempt
 
-def post_auth_checks(user, attempt,
-                     error_messages=auth_error_messages,
-                     username_fieldname=_('username')):
+def post_auth_checks(user, attempt, error_messages=auth_error_messages):
 
     attempt.user = user
 
@@ -101,9 +96,7 @@ def post_auth_checks(user, attempt,
                        attempt.username, attempt.source_address)
         attempt.save()
         raise forms.ValidationError(
-            error_messages['invalid_login'] % {
-                'username': username_fieldname},
-            code='invalid_login')
+            error_messages['invalid_login'], code='invalid_login')
 
     if not user.is_active:
         logger.warning(u'Authentication failure, username=%s, '
@@ -111,8 +104,7 @@ def post_auth_checks(user, attempt,
                        attempt.username, attempt.source_address)
         attempt.save()
         raise forms.ValidationError(
-            error_messages['inactive'],
-            code='inactive')
+            error_messages['inactive'], code='inactive')
 
     # Authentication was successful
     logger.info(u'Authentication success, username=%s, address=%s',
@@ -143,18 +135,14 @@ class StrictAuthenticationForm(AuthenticationForm):
         host = self.request.get_host()
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
-        username_fieldname = self.username_field.verbose_name
 
         attempt = pre_auth_checks(username, password, remote_addr, host,
-                                  self.error_messages,
-                                  username_fieldname=username_fieldname)
+                                  self.error_messages)
 
-        user = authenticate(username=username, password=password)
+        self.user_cache = authenticate(username=username, password=password)
 
-        post_auth_checks(user, attempt, self.error_messages,
-                         username_fieldname=username_fieldname)
+        post_auth_checks(self.user_cache, attempt, self.error_messages)
 
-        self.user_cache = user
         return self.cleaned_data
 
 
