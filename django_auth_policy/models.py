@@ -49,7 +49,8 @@ class LoginAttemptManager(models.Manager):
 class LoginAttempt(models.Model):
     _username_length = get_user_model()._meta.get_field(
         get_user_model().USERNAME_FIELD).max_length
-    username = models.CharField(_('username'), max_length=_username_length, db_index=True)
+    username = models.CharField(_('username'), max_length=_username_length,
+                                db_index=True)
     source_address = models.GenericIPAddressField(_('source address'),
                                                   protocol='both',
                                                   db_index=True)

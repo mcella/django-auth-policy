@@ -6,4 +6,5 @@ user_expired = dispatch.Signal(providing_args=["user"])
 
 # temporary_password_set is send when a user gets a temporary password
 # It can be used to inform the user about the temporary password
-temporary_password_set = dispatch.Signal(providing_args=["user", "request", "password"])
+temporary_password_set = dispatch.Signal(providing_args=["user", "request",
+                                                         "password"])

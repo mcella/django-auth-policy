@@ -27,4 +27,3 @@ def update_session(session, user):
     session['password_change_enforce'] = enforce
     session['password_is_expired'] = is_exp
     session['password_is_temporary'] = is_temp
-

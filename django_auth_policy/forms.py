@@ -86,6 +86,7 @@ def pre_auth_checks(username, password, remote_addr, host,
 
     return attempt
 
+
 def post_auth_checks(user, attempt, error_messages=auth_error_messages):
 
     attempt.user = user
@@ -130,6 +131,7 @@ class StrictAuthenticationForm(AuthenticationForm):
         """
         return super(StrictAuthenticationForm, self).__init__(request, *args,
                                                               **kwargs)
+
     def clean(self):
         remote_addr = self.request.META['REMOTE_ADDR']
         host = self.request.get_host()
