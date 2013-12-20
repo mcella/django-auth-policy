@@ -17,7 +17,7 @@ from django_auth_policy import settings as dap_settings
 
 
 class LoginTests(TestCase):
-    urls = 'django_auth_policy.tests.urls'
+    urls = 'django_auth_policy.testsite.urls'
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -245,7 +245,7 @@ class LoginTests(TestCase):
 
 
 class UserExpiryTests(TestCase):
-    urls = 'django_auth_policy.tests.urls'
+    urls = 'django_auth_policy.testsite.urls'
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -313,7 +313,7 @@ class UserExpiryTests(TestCase):
 
 
 class PasswordChangeTests(TestCase):
-    urls = 'django_auth_policy.tests.urls'
+    urls = 'django_auth_policy.testsite.urls'
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
