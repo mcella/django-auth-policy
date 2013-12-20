@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-20 15:45+0100\n"
+"POT-Creation-Date: 2013-12-20 17:18+0100\n"
 "PO-Revision-Date: 2013-11-07 17:45+0100\n"
 "Last-Translator: Rudolph Froger <rudolphfroger@estrate.nl>\n"
 "Language: Dutch\n"
@@ -23,7 +23,7 @@ msgstr "%s mislukte pogingen ontgrendeld"
 msgid "Unlock"
 msgstr "Ontgrendel"
 
-#: forms.py:26
+#: forms.py:28
 msgid ""
 "Please enter a correct username and password. Note that both fields may be "
 "case-sensitive."
@@ -31,11 +31,11 @@ msgstr ""
 "Voer een correcte gebruikersnaam en wachtwoord in. Let op dat beide velden "
 "hoofdlettergevoelig zijn."
 
-#: forms.py:28
+#: forms.py:30
 msgid "This account is inactive."
 msgstr "Dit account is niet actief."
 
-#: forms.py:29 forms.py:31
+#: forms.py:31 forms.py:33
 msgid ""
 "Your account has been locked. Contact your user administrator for more "
 "information."
@@ -43,29 +43,29 @@ msgstr ""
 "Uw account is vergrendeld. Neem contact op met uw gebruikersbeheerder voor "
 "meer informatie."
 
-#: forms.py:153 forms.py:205
+#: forms.py:155 forms.py:208
 msgid "The two password fields didn't match."
 msgstr "De twee ingevulde wachtwoorden zijn niet gelijk."
 
-#: forms.py:155
+#: forms.py:157
 msgid "New password"
 msgstr "Nieuw wachtwoord"
 
-#: forms.py:157
+#: forms.py:159
 msgid "New password confirmation"
 msgstr "Bevestig nieuw wachtwoord"
 
-#: forms.py:206
+#: forms.py:209
 msgid "Your old password was entered incorrectly. Please enter it again."
 msgstr ""
 "Uw oude wachtwoord is niet correct ingevoerd. Voert u het alstublieft "
 "opnieuw in."
 
-#: forms.py:208
+#: forms.py:211
 msgid "The new password must not be the same as the old password"
 msgstr "Het nieuwe wachtwoord mag niet hetzelfde zijn als het oude wachtwoord"
 
-#: forms.py:211
+#: forms.py:214
 msgid "Old password"
 msgstr "Oud wachtwoord"
 
@@ -193,6 +193,11 @@ msgid "Passwords are not allowed to contain (pieces of) your name or email."
 msgstr ""
 "Wachtwoorden mogen geen (onderdelen van) uw naam of e-mailadres bevatten."
 
+#: settings.py:107
+#, python-brace-format
+msgid "Passwords are not allowed to contain the following term(s): {terms}"
+msgstr "Wachtwoorden mogen niet de volgende term(en) bevatten: {terms}"
+
 #: user_admin.py:29
 #: templates/admin/django_auth_policy/set_temporary_password.html:19
 msgid "Username"
@@ -298,19 +303,19 @@ msgstr "Uw tijdelijke wachtwoord"
 msgid "Compose email"
 msgstr "E-mail samenstellen"
 
-#: tests/templates/change_password.html:4
+#: testsite/templates/change_password.html:4
 msgid "Change password"
 msgstr "Wachtwoord aanpassen"
 
-#: tests/templates/change_password.html:6
+#: testsite/templates/change_password.html:6
 msgid "Password policy"
 msgstr "Wachtwoordbeleid"
 
-#: tests/templates/change_password.html:12
+#: testsite/templates/change_password.html:12
 msgid "Every password must have:"
 msgstr "Elk wachtwoord bevat:"
 
-#: tests/templates/change_password.html:20
+#: testsite/templates/change_password.html:20
 #, python-format
 msgid ""
 "Passwords must be changed every\n"

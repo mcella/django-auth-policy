@@ -49,6 +49,8 @@ AUTHENTICATION_BACKENDS = (
     'django_auth_policy.backends.StrictModelBackend',
 )
 
+PASSWORD_DISALLOWED_TERMS = ['Testsite']
+
 # Required for testing log output
 LOGGING = {
     'version': 1,

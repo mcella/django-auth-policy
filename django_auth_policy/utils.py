@@ -69,4 +69,11 @@ def password_policy_texts():
             'caption': '',
         })
 
+    if dap_settings.PASSWORD_DISALLOWED_TERMS:
+        rules.append({
+            'text': _(dap_settings.PASSWORD_DISALLOWED_TERMS_TEXT).format(
+                terms=u', '.join(dap_settings.PASSWORD_DISALLOWED_TERMS)),
+            'caption': '',
+        })
+
     return rules

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 import logging
 import collections
@@ -535,12 +536,16 @@ class PasswordChangeTests(TestCase):
         self.user.username = 'rf'
         self.user.email = 'rf@example.com'
         self.user.first_name = 'Rudolph'
+        # Try names with accents:
+        self.user.last_name = u'Frögér'
         self.user.save()
 
         passwds = [
             ('AbcDef#12Rudolph', False),
             ('1234rf#examplE', False),
             ('Rudolph#12345', False),
+            # Should match froger with accents:
+            (u'Froger#12345', False),
             # Short pieces are allowed, like 'rf':
             ('rf54321#AbCd', True),
         ]
@@ -552,3 +557,20 @@ class PasswordChangeTests(TestCase):
             if not valid:
                 self.assertEqual(form.errors['new_password1'],
                                  [dap_settings.PASSWORD_USER_ATTRS_TEXT])
+
+    def test_password_disallowed_terms(self):
+        self.assertEqual(dap_settings.PASSWORD_DISALLOWED_TERMS, ['Testsite'])
+
+        passwds = [
+            ('123TestSite###', False),
+            ('123Site###Test', True),
+        ]
+        for passwd, valid in passwds:
+            form = StrictSetPasswordForm(self.user, data={
+                'new_password1': passwd,
+                'new_password2': passwd})
+            self.assertEqual(form.is_valid(), valid)
+            if not valid:
+                errs = [dap_settings.PASSWORD_DISALLOWED_TERMS_TEXT.format(
+                    terms='testsite')]
+                self.assertEqual(form.errors['new_password1'], errs)

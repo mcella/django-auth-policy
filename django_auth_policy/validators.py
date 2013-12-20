@@ -69,3 +69,17 @@ def password_user_attrs(value, user):
                 msg = _(dap_settings.PASSWORD_USER_ATTRS_TEXT).format(
                     piece=piece)
                 raise ValidationError(msg, 'password_user_attrs')
+
+
+def password_disallowed_terms(value):
+    if not dap_settings.PASSWORD_DISALLOWED_TERMS:
+        return
+
+    simple_pass = _normalize_unicode(value)
+    for term in dap_settings.PASSWORD_DISALLOWED_TERMS:
+        term = _normalize_unicode(term)
+
+        if term in simple_pass:
+            msg = _(dap_settings.PASSWORD_DISALLOWED_TERMS_TEXT).format(
+                terms=term)
+            raise ValidationError(msg, 'password_disallowed_terms')

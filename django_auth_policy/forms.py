@@ -13,8 +13,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django_auth_policy.models import PasswordChange, LoginAttempt
 from django_auth_policy.validators import (password_min_length,
                                            password_complexity,
-                                           password_user_attrs)
-from django_auth_policy.checks import (disable_expired_users, locked_username,
+                                           password_user_attrs,
+                                           password_disallowed_terms)
+from django_auth_policy.checks import (disable_expired_users,
+                                       locked_username,
                                        locked_remote_addr)
 
 
@@ -167,6 +169,7 @@ class StrictSetPasswordForm(forms.Form):
             password_min_length(pw)
             password_complexity(pw)
             password_user_attrs(pw, self.user)
+            password_disallowed_terms(pw)
         return pw
 
     def clean_new_password2(self):

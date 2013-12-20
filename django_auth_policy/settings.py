@@ -100,6 +100,13 @@ PASSWORD_USER_ATTRS_TEXT = getattr(settings, 'PASSWORD_USER_ATTRS_TEXT',
                                    _('Passwords are not allowed to contain '
                                      '(pieces of) your name or email.'))
 
+# Disallow a short list of terms in passwords
+# Ideal for too obvious terms like the name of the site or company
+PASSWORD_DISALLOWED_TERMS = getattr(settings, 'PASSWORD_DISALLOWED_TERMS', [])
+PASSWORD_DISALLOWED_TERMS_TEXT = getattr(settings,
+    'PASSWORD_DISALLOWED_TERMS_TEXT', _('Passwords are not allowed to contain '
+                                        'the following term(s): {terms}'))
+
 # Characters used to generate temporary passwords
 TEMP_PASSWORD_CHARS = getattr(settings, 'TEMP_PASSWORD_CHARS',
                               'abcdefghijlkmnopqrstuvwxyz'
