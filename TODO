@@ -35,3 +35,5 @@ IDEAS / TODOS
 
 * Optionally measure entropy of passwords
   Research: any good enough algorithms available?
+
+* Move testsite into seperate folder als move all URLs to testsite

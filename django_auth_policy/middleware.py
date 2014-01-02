@@ -1,11 +1,10 @@
 import logging
 
 from django.core.urlresolvers import resolve, reverse
+from django.conf import settings
 
+from django_auth_policy.handlers import PasswordChangePolicyHandler
 from django_auth_policy.forms import StrictPasswordChangeForm
-from django_auth_policy.utils import update_session
-from django_auth_policy.settings import (CHANGE_PASSWORD_VIEW_NAME,
-    LOGIN_VIEW_NAME, LOGOUT_VIEW_NAME)
 
 
 logger = logging.getLogger(__name__)
@@ -20,9 +19,14 @@ class AuthenticationPolicyMiddleware(object):
     This is enforced using middleware to prevent users from accessing any page
     handled by Django without the policy being enforced.
     """
-    change_password_path = reverse(CHANGE_PASSWORD_VIEW_NAME)
-    login_path = reverse(LOGIN_VIEW_NAME)
-    logout_path = reverse(LOGOUT_VIEW_NAME)
+
+    change_password_path = reverse(getattr(settings,
+                                           'CHANGE_PASSWORD_VIEW_NAME',
+                                           'password_change'))
+    login_path = reverse(getattr(settings, 'LOGIN_VIEW_NAME', 'login'))
+    logout_path = reverse(getattr(settings, 'LOGOUT_VIEW_NAME', 'logout'))
+
+    password_change_policy_handler = PasswordChangePolicyHandler()
 
     def process_request(self, request):
         assert hasattr(request, 'user'), (
@@ -56,10 +60,12 @@ class AuthenticationPolicyMiddleware(object):
 
         # When password change is enforced, check if this is still required
         # for next request
+        # FIXME When is this necessary?
         if not request.session.get('password_change_enforce', False):
             return response
 
-        update_session(request.session, request.user)
+        self.password_change_policy_handler.update_session(
+            request, request.user)
 
         return response
 
@@ -77,11 +83,10 @@ class AuthenticationPolicyMiddleware(object):
             "changes.")
 
         # Provide extra context to be used in the password_change template
-        is_exp = request.session.get('password_is_expired', False)
-        is_tmp = request.session.get('password_is_temporary', False)
         if not 'extra_context' in kwargs:
             kwargs['extra_context'] = {}
-        kwargs['extra_context']['is_enforced'] = True
-        kwargs['extra_context']['is_temporary'] = is_tmp
-        kwargs['extra_context']['is_expired'] = is_exp
+        kwargs['extra_context']['password_change_enforce'] = \
+            request.session.get('password_change_enforce')
+        kwargs['extra_context']['password_change_enforce_msg'] = \
+            request.session.get('password_change_enforce_msg')
         return view_func(request, *args, **kwargs)

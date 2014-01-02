@@ -32,7 +32,7 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 LOGIN_REDIRECT_URL = '/'
 
-ROOT_URLCONF = 'django_auth_policy.tests.urls'
+ROOT_URLCONF = 'django_auth_policy.testsite.urls'
 
 # Required for Django 1.4+
 STATIC_URL = '/static/'
@@ -45,11 +45,28 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates'),
 )
 
-AUTHENTICATION_BACKENDS = (
-    'django_auth_policy.backends.StrictModelBackend',
+# Enabled Django Auth Policies
+AUTHENTICATION_POLICIES = (
+    ('django_auth_policy.authentication.AuthenticationBasicChecks', {}),
+    ('django_auth_policy.authentication.AuthenticationDisableExpiredUsers', {}),
+    ('django_auth_policy.authentication.AuthenticationLockedUsername', {}),
+    ('django_auth_policy.authentication.AuthenticationLockedRemoteAddress', {}),
 )
-
-PASSWORD_DISALLOWED_TERMS = ['Testsite']
+PASSWORD_STRENGTH_POLICIES = (
+    ('django_auth_policy.password_strength.PasswordMinLength', {}),
+    ('django_auth_policy.password_strength.PasswordContainsUpperCase', {}),
+    ('django_auth_policy.password_strength.PasswordContainsLowerCase', {}),
+    ('django_auth_policy.password_strength.PasswordContainsNumbers', {}),
+    ('django_auth_policy.password_strength.PasswordContainsSymbols', {}),
+    ('django_auth_policy.password_strength.PasswordUserAttrs', {}),
+    ('django_auth_policy.password_strength.PasswordDisallowedTerms', {
+        'terms': ['Testsite']
+    }),
+)
+PASSWORD_CHANGE_POLICIES = (
+    ('django_auth_policy.password_change.PasswordChangeExpired', {}),
+    ('django_auth_policy.password_change.PasswordChangeTemporary', {}),
+)
 
 # Required for testing log output
 LOGGING = {

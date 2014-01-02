@@ -22,10 +22,6 @@ Follow these steps to install ``django_auth_policy``:
   ``django_auth_policy.forms``. For inspiration on how to use these forms
   have a look at ``django_auth_forms.urls.py``.
 
-* Optionally replace the default Django auth ModelBackend in Django settings
-  ``AUTHENTICATION_BACKENDS`` with
-  ``django_auth_forms.backends.StrictModelBackend``.
-
 * Run the ``./manage.py check_auth_policy`` command as a sanity check if
   everything is in place. This command is **NO guarantee** since it\'s easy
   for developers to work around the checks performed by this command.

@@ -1,13 +1,8 @@
-import datetime
-
 from django.db import models
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
-
-from django_auth_policy import settings as dap_settings
 
 
 class LoginAttemptManager(models.Manager):
@@ -47,13 +42,9 @@ class LoginAttemptManager(models.Manager):
 
 
 class LoginAttempt(models.Model):
-    _username_length = get_user_model()._meta.get_field(
-        get_user_model().USERNAME_FIELD).max_length
-    username = models.CharField(_('username'), max_length=_username_length,
-                                db_index=True)
-    source_address = models.GenericIPAddressField(_('source address'),
-                                                  protocol='both',
-                                                  db_index=True)
+    username = models.CharField(_('username'), max_length=100, db_index=True)
+    source_address = models.GenericIPAddressField(
+        _('source address'), protocol='both', db_index=True)
     hostname = models.CharField(_('hostname'), max_length=100)
     successful = models.BooleanField(_('successful'), default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True,
@@ -75,19 +66,6 @@ class LoginAttempt(models.Model):
             ('unlock', _('Unlock by username or IP address')),
             )
 
-    @property
-    def within_lockout_period(self):
-        """ Returns if this login attempt is within the
-        FAILED_AUTH_LOCKOUT_PERIOD. This should be checked for the last
-        failed login attempt."""
-        if not self.lockout:
-            return False
-
-        lock_from = timezone.now() - datetime.timedelta(
-            seconds=dap_settings.FAILED_AUTH_LOCKOUT_PERIOD)
-
-        return lock_from < self.timestamp
-
     def __unicode__(self):
         return u'{0} at {1} from {2}'.format(self.username,
                                              self.timestamp,
@@ -98,8 +76,14 @@ class PasswordChangeAdmin(models.Manager):
     def set_temporary_password(self, user):
         """Returns a random password and sets this as temporary password for
         provided user."""
-        allowed_chars = dap_settings.TEMP_PASSWORD_CHARS
-        length = dap_settings.TEMP_PASSWORD_LENGTH
+        # Characters used to generate temporary passwords
+        allowed_chars = getattr(settings, 'TEMP_PASSWORD_CHARS',
+                                'abcdefghijlkmnopqrstuvwxyz'
+                                'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                                '0123456789')
+        # Temporary password length
+        length = getattr(settings, 'TEMP_PASSWORD_LENGTH', 12)
+
         password = get_random_string(length, allowed_chars)
 
         PasswordChange.objects.create(user=user, is_temporary=True,

@@ -14,7 +14,6 @@ from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
 from django.contrib.sites.models import get_current_site
 
 from django_auth_policy.forms import StrictAuthenticationForm
-from django_auth_policy.utils import update_session
 
 
 logger = logging.getLogger(__name__)
@@ -30,8 +29,8 @@ def login(request, template_name='registration/login.html',
     """
     Displays the login form and handles the login action.
 
-    Uses the StrictAuthenticationForm and triggers a password change after
-    login when required.
+    This view is the same as the Django 1.6 login view but uses the
+    StrictAuthenticationForm
     """
     redirect_to = request.POST.get(redirect_field_name,
                                    request.GET.get(redirect_field_name, ''))
@@ -46,9 +45,6 @@ def login(request, template_name='registration/login.html',
 
             # Okay, security check complete. Log the user in.
             auth_login(request, form.get_user())
-
-            # Update session with Django Auth Policy data
-            update_session(request.session, form.get_user())
 
             return HttpResponseRedirect(redirect_to)
     else:

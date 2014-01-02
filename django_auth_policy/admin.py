@@ -6,9 +6,9 @@ from django.core.urlresolvers import reverse
 from django.contrib import admin
 from django.contrib.auth.views import password_change
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.conf import settings
 
 from django_auth_policy.models import PasswordChange, LoginAttempt, UserChange
-from django_auth_policy import settings as dap_settings
 from django_auth_policy.forms import (StrictAuthenticationForm,
                                       StrictPasswordChangeForm)
 
@@ -136,7 +136,13 @@ admin.site.login = admin_login
 admin.site.login_form = StrictAuthenticationForm
 admin.site.password_change = admin_password_change
 
-if dap_settings.REPLACE_AUTH_USER_ADMIN:
+# django_auth_policy replaces the default Django auth UserAdmin to enforce
+# authentication policies on the admin interface. Set this to False when
+# django_auth_policy shouldn't replace UserAdmin.
+replace_auth_user_admin = getattr(settings, 'REPLACE_AUTH_USER_ADMIN', True)
+
+# UserAdmin is never replaced when a custom Auth model is in use
+if replace_auth_user_admin and settings.AUTH_USER_MODEL == 'auth.User':
     # Import this here to avoid unwanted registering of django auth admin
     from django.contrib.auth import get_user_model
     from django_auth_policy.user_admin import StrictUserAdmin

@@ -9,12 +9,22 @@ from django.contrib.auth import get_user_model, SESSION_KEY
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 
+from django_auth_policy.models import LoginAttempt, PasswordChange
 from django_auth_policy.forms import (StrictAuthenticationForm,
                                       StrictPasswordChangeForm,
                                       StrictSetPasswordForm)
-from django_auth_policy.models import LoginAttempt, PasswordChange
-from django_auth_policy.backends import StrictModelBackend
-from django_auth_policy import settings as dap_settings
+from django_auth_policy.authentication import (AuthenticationLockedUsername,
+                                               AuthenticationLockedRemoteAddress,
+                                               AuthenticationDisableExpiredUsers)
+from django_auth_policy.password_change import (PasswordChangeExpired,
+                                                PasswordChangeTemporary)
+from django_auth_policy.password_strength import (PasswordMinLength,
+                                                  PasswordContainsUpperCase,
+                                                  PasswordContainsLowerCase,
+                                                  PasswordContainsNumbers,
+                                                  PasswordContainsSymbols,
+                                                  PasswordUserAttrs,
+                                                  PasswordDisallowedTerms)
 
 
 class LoginTests(TestCase):
@@ -54,12 +64,13 @@ class LoginTests(TestCase):
         self.assertEqual(self.logger.handlers[0].stream.getvalue(), (
             u'INFO Authentication attempt, username=rf, address=127.0.0.1\n'
             u'INFO Authentication success, username=rf, address=127.0.0.1\n'
-            u'INFO User rf must change password\n'))
+            u'INFO User rf must change password; password-expired\n'))
 
     def test_username_lockout(self):
         """ Test too many failed login attempts for one username """
-
-        for x in xrange(0, dap_settings.FAILED_AUTH_USERNAME_MAX):
+        pol = AuthenticationLockedUsername()
+        text = unicode(pol.text)
+        for x in xrange(0, pol.max_failed):
 
             req = self.factory.get(reverse('login'))
             req.META['REMOTE_ADDR'] = '10.0.0.%d' % (x + 1)
@@ -75,17 +86,16 @@ class LoginTests(TestCase):
                                                successful=False, lockout=True)
 
         self.assertEqual(attempts.count(),
-                         dap_settings.FAILED_AUTH_USERNAME_MAX)
+                         pol.max_failed)
 
         # Another failed authentication triggers lockout
         req = self.factory.get(reverse('login'))
         form = StrictAuthenticationForm(request=req, data={
             'username': 'rf', 'password': 'wrong password'})
-        self.assertEqual(form.non_field_errors(), [
-            form.error_messages['username_locked_out']])
+        self.assertEqual(form.non_field_errors(), [text])
 
         self.assertEqual(attempts.count(),
-                         dap_settings.FAILED_AUTH_USERNAME_MAX + 1)
+                         pol.max_failed + 1)
 
         # Even valid authentication will no longer work now
         req = self.factory.get(reverse('login'))
@@ -112,10 +122,12 @@ class LoginTests(TestCase):
 
     def test_address_lockout(self):
         """ Test too many failed login attempts for one address """
+        pol = AuthenticationLockedRemoteAddress()
+        text = unicode(pol.text)
 
         addr = '1.2.3.4'
 
-        for x in xrange(0, dap_settings.FAILED_AUTH_ADDRESS_MAX):
+        for x in xrange(0, pol.max_failed):
 
             req = self.factory.get(reverse('login'))
             req.META['REMOTE_ADDR'] = addr
@@ -130,19 +142,16 @@ class LoginTests(TestCase):
         attempts = LoginAttempt.objects.filter(source_address=addr,
                                                successful=False, lockout=True)
 
-        self.assertEqual(attempts.count(),
-                         dap_settings.FAILED_AUTH_ADDRESS_MAX)
+        self.assertEqual(attempts.count(), pol.max_failed)
 
         # Another failed authentication triggers lockout
         req = self.factory.get(reverse('login'))
         req.META['REMOTE_ADDR'] = addr
         form = StrictAuthenticationForm(request=req, data={
             'username': 'rf', 'password': 'wrong password'})
-        self.assertEqual(form.non_field_errors(), [
-            form.error_messages['address_locked_out']])
+        self.assertEqual(form.non_field_errors(), [text])
 
-        self.assertEqual(attempts.count(),
-                         dap_settings.FAILED_AUTH_ADDRESS_MAX + 1)
+        self.assertEqual(attempts.count(), pol.max_failed + 1)
 
         self.assertEqual(self.logger.handlers[0].stream.getvalue(), (
             u'INFO Authentication attempt, username=rf0, address=1.2.3.4\n'
@@ -176,7 +185,9 @@ class LoginTests(TestCase):
             u'user inactive.\n'))
 
     def test_lock_period(self):
-        for x in xrange(0, dap_settings.FAILED_AUTH_USERNAME_MAX + 1):
+        pol = AuthenticationLockedUsername()
+        text = unicode(pol.text)
+        for x in xrange(0, pol.max_failed + 1):
 
             req = self.factory.get(reverse('login'))
 
@@ -186,12 +197,10 @@ class LoginTests(TestCase):
             self.assertFalse(form.is_valid())
 
         # User locked out
-        self.assertEqual(form.non_field_errors(), [
-            form.error_messages['username_locked_out']])
+        self.assertEqual(form.non_field_errors(), [text])
 
         # Alter timestamps as if they happened longer ago
-        period = datetime.timedelta(
-            seconds=dap_settings.FAILED_AUTH_LOCKOUT_PERIOD)
+        period = datetime.timedelta(seconds=pol.lockout_duration)
         expire_at = timezone.now() - period
         LoginAttempt.objects.all().update(timestamp=expire_at)
 
@@ -206,7 +215,9 @@ class LoginTests(TestCase):
 
     def test_unlock(self):
         """ Resetting lockout data unlocks user """
-        for x in xrange(0, dap_settings.FAILED_AUTH_USERNAME_MAX + 1):
+        pol = AuthenticationLockedUsername()
+        text = unicode(pol.text)
+        for x in xrange(0, pol.max_failed + 1):
 
             req = self.factory.get(reverse('login'))
 
@@ -216,8 +227,7 @@ class LoginTests(TestCase):
             self.assertFalse(form.is_valid())
 
         # User locked out
-        self.assertEqual(form.non_field_errors(), [
-            form.error_messages['username_locked_out']])
+        self.assertEqual(form.non_field_errors(), [text])
 
         # Unlock user or address
         LoginAttempt.objects.all().update(lockout=False)
@@ -226,23 +236,6 @@ class LoginTests(TestCase):
         form = StrictAuthenticationForm(request=req, data={
             'username': 'rf', 'password': 'password'})
         self.assertTrue(form.is_valid())
-
-    def test_backend_locked_username(self):
-        # Authentication works
-        backend = StrictModelBackend()
-        user = backend.authenticate(username='rf', password='password')
-        self.assertEqual(user, self.user)
-
-        # Lock user
-        for x in xrange(0, dap_settings.FAILED_AUTH_USERNAME_MAX + 1):
-            req = self.factory.get(reverse('login'))
-            form = StrictAuthenticationForm(request=req, data={
-                'username': 'rf', 'password': 'wrong password'})
-            self.assertFalse(form.is_valid())
-
-        # Authentication must no longer work for this user
-        user = backend.authenticate(username='rf', password='password')
-        self.assertEqual(user, None)
 
 
 class UserExpiryTests(TestCase):
@@ -264,13 +257,15 @@ class UserExpiryTests(TestCase):
         self.logger.handlers[0].stream = self.old_stream
 
     def test_expiry(self):
+        pol = AuthenticationDisableExpiredUsers()
+
         req = self.factory.get(reverse('login'))
         form = StrictAuthenticationForm(request=req, data={
             'username': 'rf', 'password': 'password'})
         self.assertTrue(form.is_valid())
 
         # Simulate user didn't log in for a long time
-        period = datetime.timedelta(days=dap_settings.INACTIVE_USERS_EXPIRY)
+        period = datetime.timedelta(days=pol.inactive_period)
         expire_at = timezone.now() - period
         self.user.last_login = expire_at
         self.user.save()
@@ -293,25 +288,6 @@ class UserExpiryTests(TestCase):
             u'WARNING Authentication failure, username=rf, address=127.0.0.1, '
             u'user inactive.\n' % expire_at))
 
-    def test_backend_expired_user(self):
-        # Authentication works
-        backend = StrictModelBackend()
-        user = backend.authenticate(username='rf', password='password')
-        self.assertEqual(user, self.user)
-        self.assertTrue(user.is_active)
-
-        # Simulate user didn't log in for a long time
-        period = datetime.timedelta(days=dap_settings.INACTIVE_USERS_EXPIRY)
-        expire_at = timezone.now() - period
-        self.user.last_login = expire_at
-        self.user.save()
-        LoginAttempt.objects.all().update(timestamp=expire_at)
-
-        # Authentication must still work for this user, but user is inactive
-        user = backend.authenticate(username='rf', password='password')
-        self.assertEqual(user, self.user)
-        self.assertFalse(user.is_active)
-
 
 class PasswordChangeTests(TestCase):
     urls = 'django_auth_policy.testsite.urls'
@@ -332,6 +308,8 @@ class PasswordChangeTests(TestCase):
         self.logger.handlers[0].stream = self.old_stream
 
     def test_expiry(self):
+        pol = PasswordChangeExpired()
+
         # Create one recent password change
         pw = PasswordChange.objects.create(user=self.user, successful=True,
                                            is_temporary=False)
@@ -349,8 +327,7 @@ class PasswordChangeTests(TestCase):
         self.assertEqual(self.client.session[SESSION_KEY], self.user.id)
         self.assertTrue('password_change_enforce' in self.client.session)
         self.assertFalse(self.client.session['password_change_enforce'])
-        self.assertFalse(self.client.session['password_is_expired'])
-        self.assertFalse(self.client.session['password_is_temporary'])
+        self.assertFalse(self.client.session['password_change_enforce_msg'])
         self.assertNotContains(resp, 'new_password1')
 
         # Test if login worked ok
@@ -363,7 +340,7 @@ class PasswordChangeTests(TestCase):
         self.assertFalse(SESSION_KEY in self.client.session)
 
         # Move PasswordChange into the past
-        period = datetime.timedelta(days=dap_settings.MAX_PASSWORD_AGE)
+        period = datetime.timedelta(days=pol.max_age)
         expire_at = timezone.now() - period
         pw.timestamp = expire_at
         pw.save()
@@ -375,9 +352,10 @@ class PasswordChangeTests(TestCase):
         self.assertTrue(SESSION_KEY in self.client.session)
         self.assertEqual(self.client.session[SESSION_KEY], self.user.id)
         self.assertTrue('password_change_enforce' in self.client.session)
-        self.assertTrue(self.client.session['password_change_enforce'])
-        self.assertTrue(self.client.session['password_is_expired'])
-        self.assertFalse(self.client.session['password_is_temporary'])
+        self.assertEqual(self.client.session['password_change_enforce'],
+                         'password-expired')
+        self.assertEqual(self.client.session['password_change_enforce_msg'],
+                         unicode(pol.text))
         self.assertContains(resp, 'old_password')
         self.assertContains(resp, 'new_password1')
         self.assertContains(resp, 'new_password2')
@@ -386,9 +364,8 @@ class PasswordChangeTests(TestCase):
         # password view
         resp = self.client.get(reverse('another_view'), follow=False)
         self.assertTrue('password_change_enforce' in self.client.session)
-        self.assertTrue(self.client.session['password_change_enforce'])
-        self.assertTrue(self.client.session['password_is_expired'])
-        self.assertFalse(self.client.session['password_is_temporary'])
+        self.assertEqual(self.client.session['password_change_enforce'],
+                         'password-expired')
         self.assertContains(resp, 'old_password')
         self.assertContains(resp, 'new_password1')
         self.assertContains(resp, 'new_password2')
@@ -399,8 +376,6 @@ class PasswordChangeTests(TestCase):
             'new_password1': 'abcABC123!@#',
             'new_password2': 'abcABC123!@#'}, follow=True)
         self.assertFalse(self.client.session['password_change_enforce'])
-        self.assertFalse(self.client.session['password_is_expired'])
-        self.assertFalse(self.client.session['password_is_temporary'])
         self.assertNotContains(resp, 'old_password')
         self.assertNotContains(resp, 'new_password1')
         self.assertNotContains(resp, 'new_password2')
@@ -418,10 +393,11 @@ class PasswordChangeTests(TestCase):
             u'INFO Authentication success, username=rf, address=127.0.0.1\n'
             u'INFO Authentication attempt, username=rf, address=127.0.0.1\n'
             u'INFO Authentication success, username=rf, address=127.0.0.1\n'
-            u'INFO User rf must change expired password\n'
+            u'INFO User rf must change password; password-expired\n'
             u'INFO Password change successful for user rf\n'))
 
     def test_temporary_password(self):
+        pol = PasswordChangeTemporary()
         # Create one recent password change
         PasswordChange.objects.create(user=self.user, successful=True,
                                       is_temporary=True)
@@ -431,7 +407,12 @@ class PasswordChangeTests(TestCase):
             'username': 'rf', 'password': 'password'})
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(SESSION_KEY in self.client.session)
+        self.assertTrue('password_change_enforce' in self.client.session)
         self.assertEqual(self.client.session[SESSION_KEY], self.user.id)
+        self.assertEqual(self.client.session['password_change_enforce'],
+                         'password-temporary')
+        self.assertEqual(self.client.session['password_change_enforce_msg'],
+                         unicode(pol.text))
 
         # Requesting a page shows password change view
         resp = self.client.get(reverse('login_required_view'), follow=True)
@@ -459,7 +440,7 @@ class PasswordChangeTests(TestCase):
         self.assertEqual(self.logger.handlers[0].stream.getvalue(), (
             u'INFO Authentication attempt, username=rf, address=127.0.0.1\n'
             u'INFO Authentication success, username=rf, address=127.0.0.1\n'
-            u'INFO User rf must change temporary password\n'
+            u'INFO User rf must change password; password-temporary\n'
             u'INFO Password change successful for user rf\n'))
 
     def password_change_login_required(self):
@@ -467,9 +448,30 @@ class PasswordChangeTests(TestCase):
         self.assertEqual(resp.redirect_chain, [
             ('http://testserver/login/?next=/password_change/', 302)])
 
+
+class PasswordStrengthTests(TestCase):
+    urls = 'django_auth_policy.testsite.urls'
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='rf',
+            email='rf@example.rf',
+            password='password')
+
+        self.factory = RequestFactory()
+
+        self.logger = logging.getLogger()
+        self.old_stream = self.logger.handlers[0].stream
+        self.logger.handlers[0].stream = StringIO()
+
+    def tearDown(self):
+        self.logger.handlers[0].stream = self.old_stream
+
     def test_password_length(self):
+        pol = PasswordMinLength()
+
         new_passwd = 'Aa1.$Bb2.^Cc.Dd5%.Ee6&.Dd7*'
-        short_passwd = new_passwd[:dap_settings.PASSWORD_MIN_LENGTH]
+        short_passwd = new_passwd[:pol.min_length]
 
         # Too short password doesnt work
         form = StrictPasswordChangeForm(self.user, data={
@@ -478,8 +480,7 @@ class PasswordChangeTests(TestCase):
             'new_password2': short_passwd[:-1]})
 
         self.assertFalse(form.is_valid())
-        msg = dap_settings.PASSWORD_MIN_LENGTH_TEXT.format(
-            length=dap_settings.PASSWORD_MIN_LENGTH)
+        msg = unicode(pol.policy_text)
         self.assertEqual(form.errors['new_password1'], [msg])
 
         # Longer password does work
@@ -502,21 +503,27 @@ class PasswordChangeTests(TestCase):
             'INFO Password change successful for user rf\n'))
 
     def test_password_complexity(self):
-        # Remove one category at a time to check all posibilities
-        rules = collections.deque(dap_settings.PASSWORD_COMPLEXITY)
-        for x in xrange(0, len(rules)):
-            passwd = u''.join([r['chars'][:4] for r in list(rules)[:-1]])
+        # List of policies to check, this must match PasswordContains... items
+        # of testsettings.PASSWORD_STRENGTH_POLICIES
+        policies = collections.deque([
+            PasswordContainsUpperCase(),
+            PasswordContainsLowerCase(),
+            PasswordContainsNumbers(),
+            PasswordContainsSymbols(),
+        ])
+        for x in xrange(0, len(policies)):
+            # Create a password with 4 chars from every policy except one
+            passwd = u''.join([pol.chars[:4] for pol in list(policies)[:-1]])
             form = StrictPasswordChangeForm(self.user, data={
                 'old_password': 'password',
                 'new_password1': passwd,
                 'new_password2': passwd})
-            failing_rule = rules[-1]
+            failing_policy = policies[-1]
             self.assertFalse(form.is_valid())
-            err_msg = dap_settings.PASSWORD_COMPLEXITY_TEXT.format(
-                rule_text=failing_rule['text'])
+            err_msg = unicode(failing_policy.policy_text)
             self.assertEqual(form.errors['new_password1'], [err_msg])
 
-            rules.rotate(1)
+            policies.rotate(1)
 
     def test_password_differ_old(self):
         """ Make sure new password differs from old password """
@@ -533,6 +540,8 @@ class PasswordChangeTests(TestCase):
                          [form.error_messages['password_unchanged']])
 
     def test_password_user_attrs(self):
+        policy = PasswordUserAttrs()
+
         self.user.username = 'rf'
         self.user.email = 'rf@example.com'
         self.user.first_name = 'Rudolph'
@@ -556,10 +565,10 @@ class PasswordChangeTests(TestCase):
             self.assertEqual(form.is_valid(), valid)
             if not valid:
                 self.assertEqual(form.errors['new_password1'],
-                                 [dap_settings.PASSWORD_USER_ATTRS_TEXT])
+                                 [unicode(policy.text)])
 
     def test_password_disallowed_terms(self):
-        self.assertEqual(dap_settings.PASSWORD_DISALLOWED_TERMS, ['Testsite'])
+        policy = PasswordDisallowedTerms(terms=['Testsite'])
 
         passwds = [
             ('123TestSite###', False),
@@ -571,6 +580,5 @@ class PasswordChangeTests(TestCase):
                 'new_password2': passwd})
             self.assertEqual(form.is_valid(), valid)
             if not valid:
-                errs = [dap_settings.PASSWORD_DISALLOWED_TERMS_TEXT.format(
-                    terms='testsite')]
+                errs = [unicode(policy.policy_text)]
                 self.assertEqual(form.errors['new_password1'], errs)
