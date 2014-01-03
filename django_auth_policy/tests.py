@@ -69,7 +69,7 @@ class LoginTests(TestCase):
     def test_username_lockout(self):
         """ Test too many failed login attempts for one username """
         pol = AuthenticationLockedUsername()
-        text = unicode(pol.text)
+        text = unicode(pol.validation_msg)
         for x in xrange(0, pol.max_failed):
 
             req = self.factory.get(reverse('login'))
@@ -123,7 +123,7 @@ class LoginTests(TestCase):
     def test_address_lockout(self):
         """ Test too many failed login attempts for one address """
         pol = AuthenticationLockedRemoteAddress()
-        text = unicode(pol.text)
+        text = unicode(pol.validation_msg)
 
         addr = '1.2.3.4'
 
@@ -186,7 +186,7 @@ class LoginTests(TestCase):
 
     def test_lock_period(self):
         pol = AuthenticationLockedUsername()
-        text = unicode(pol.text)
+        text = unicode(pol.validation_msg)
         for x in xrange(0, pol.max_failed + 1):
 
             req = self.factory.get(reverse('login'))
@@ -216,7 +216,7 @@ class LoginTests(TestCase):
     def test_unlock(self):
         """ Resetting lockout data unlocks user """
         pol = AuthenticationLockedUsername()
-        text = unicode(pol.text)
+        text = unicode(pol.validation_msg)
         for x in xrange(0, pol.max_failed + 1):
 
             req = self.factory.get(reverse('login'))

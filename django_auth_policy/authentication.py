@@ -101,6 +101,20 @@ class AuthenticationDisableExpiredUsers(AuthenticationPolicy):
         expired.update(is_active=False)
 
 
+def _format_lockduration(seconds):
+    duration = datetime.timedelta(seconds=seconds)
+    if duration.days > 1:
+        return _('{days} days').format(days=duration.days)
+    elif duration.days == 1:
+        return _('a day')
+    elif duration.seconds >= 120:
+        return _('{mins} minutes').format(mins=duration.seconds // 60)
+    elif duration.seconds >= 60:
+        return _('a minute')
+    else:
+        return _('{secs} seconds').format(secs=duration.seconds)
+
+
 class AuthenticationLockedUsername(AuthenticationPolicy):
     """ Lockout usernames with too many failed login attempts within a certain
     period.
@@ -114,7 +128,7 @@ class AuthenticationLockedUsername(AuthenticationPolicy):
     lockout_duration = 60 * 10
     # Validation error
     text = _('Too many failed login attempts. Your account has been locked '
-             'temporarily.')
+             'for {duration}.')
 
     def pre_auth_check(self, loginattempt, password):
         try:
@@ -152,12 +166,18 @@ class AuthenticationLockedUsername(AuthenticationPolicy):
             logger.warning(u'Authentication failure, username=%s, address=%s, '
                            'username locked', loginattempt.username,
                            loginattempt.source_address)
-            raise ValidationError(self.text, code='username_locked_out')
+            raise ValidationError(self.validation_msg,
+                                  code='username_locked_out')
 
     def auth_success(self, loginattempt):
         # Reset lockout counts for username
         LoginAttempt.objects.filter(username=loginattempt.username,
                                     lockout=True).update(lockout=False)
+
+    @property
+    def validation_msg(self):
+        dur = _format_lockduration(self.lockout_duration)
+        return self.text.format(duration=dur)
 
 
 class AuthenticationLockedRemoteAddress(AuthenticationPolicy):
@@ -172,7 +192,7 @@ class AuthenticationLockedRemoteAddress(AuthenticationPolicy):
     lockout_duration = 60 * 10
     # Validation error
     text = _('Too many failed login attempts. Your account has been locked '
-             'temporarily.')
+             'for {duration}.')
 
     def pre_auth_check(self, loginattempt, password):
         try:
@@ -210,9 +230,15 @@ class AuthenticationLockedRemoteAddress(AuthenticationPolicy):
             logger.warning(u'Authentication failure, username=%s, address=%s, '
                            'address locked', loginattempt.username,
                            loginattempt.source_address)
-            raise ValidationError(self.text, code='address_locked_out')
+            raise ValidationError(self.validation_msg,
+                                  code='address_locked_out')
 
     def auth_success(self, loginattempt):
         # Reset lockout counts for password
         LoginAttempt.objects.filter(source_address=loginattempt.source_address,
                                     lockout=True).update(lockout=False)
+
+    @property
+    def validation_msg(self):
+        dur = _format_lockduration(self.lockout_duration)
+        return self.text.format(duration=dur)
