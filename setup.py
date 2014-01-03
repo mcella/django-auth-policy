@@ -12,7 +12,7 @@ except ImportError:
 
 setup(
     name='django-auth-policy',
-    version='0.7',
+    version='0.7.1',
     description='Enforces a couple of common authentication policies for the '
                 'Django web framework.',
     author='Fox-IT B.V.',
