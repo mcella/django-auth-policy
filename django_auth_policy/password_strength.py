@@ -105,9 +105,10 @@ class PasswordContainsNumbers(PasswordContains):
 
 
 class PasswordContainsSymbols(PasswordContains):
-    chars = '!@#$%^&*()_+-={}[]:;"\'|\\,.<>?/~`'
-    text = _('Passwords must have at least one symbol')
-    plural_text = _('Passwords must have at least {min_count} symbols')
+    chars = '!@#$%^&*()_+-={}[]:;"\'|\\,.<>?/~` '
+    text = _('Passwords must have at least one special character (punctuation)')
+    plural_text = _('Passwords must have at least {min_count} special '
+                    'characters (punctuation)')
 
 
 class PasswordContainsAlphabetics(PasswordContains):
