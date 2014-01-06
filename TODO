@@ -46,3 +46,6 @@ IDEAS / TODOS
 
 * Add authentication ideas from Mozilla:
   https://wiki.mozilla.org/WebAppSec/Secure_Coding_Guidelines#Authentication
+
+* Add password hasher for bcrypt/scrypt/PDKDF2 which stores nonce/salt
+  seperately (not in the database) but still accessible by all web processes
