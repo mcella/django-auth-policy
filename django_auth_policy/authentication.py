@@ -43,7 +43,6 @@ class AuthenticationPolicy(BasePolicy):
 class AuthenticationBasicChecks(AuthenticationPolicy):
     text = _("Please enter a correct username and password. "
              "Note that both fields may be case-sensitive.")
-    inactive_text = _("This account is inactive.")
 
     def pre_auth_check(self, loginattempt, password):
         if not loginattempt.username:
@@ -70,7 +69,7 @@ class AuthenticationBasicChecks(AuthenticationPolicy):
             logger.warning(u'Authentication failure, username=%s, '
                            'address=%s, user inactive.',
                            loginattempt.username, loginattempt.source_address)
-            raise ValidationError(self.inactive_text, code='inactive')
+            raise ValidationError(self.text, code='inactive')
 
 
 class AuthenticationDisableExpiredUsers(AuthenticationPolicy):
