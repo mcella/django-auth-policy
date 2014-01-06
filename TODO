@@ -37,3 +37,12 @@ IDEAS / TODOS
   Research: any good enough algorithms available?
 
 * Move testsite into seperate folder als move all URLs to testsite
+
+* Add password strength ideas from OWASP:
+  https://www.owasp.org/index.php/Authentication_Cheat_Sheet#Implement_Proper_Password_Strength_Controls
+
+  - 3 out of 4 complexity rules
+  - not more than 2 identical characters in a row (ie. 111 not allowed)
+
+* Add authentication ideas from Mozilla:
+  https://wiki.mozilla.org/WebAppSec/Secure_Coding_Guidelines#Authentication
