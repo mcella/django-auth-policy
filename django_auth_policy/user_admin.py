@@ -13,7 +13,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 
 from django_auth_policy.models import PasswordChange, LoginAttempt, UserChange
-from django_auth_policy.checks import disable_expired_users
 from django_auth_policy import signals
 
 
@@ -87,13 +86,6 @@ class StrictUserAdmin(UserAdmin):
                                          last_login=timezone.now())
         self.message_user(request, _('%s users were (re)activated') % fixed)
     reactivate_users.short_description = _('(Re)activate users')
-
-    def changelist_view(self, request, extra_context=None):
-        # Disable expired users to make sure the 'is_active' field accuratly
-        # represents the state of the user
-        disable_expired_users()
-        return super(StrictUserAdmin, self).changelist_view(request,
-                                                            extra_context)
 
     def get_urls(self):
         urls = super(StrictUserAdmin, self).get_urls()
