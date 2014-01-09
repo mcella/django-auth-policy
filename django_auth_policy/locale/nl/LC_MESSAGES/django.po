@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-06 15:26+0100\n"
+"POT-Creation-Date: 2014-01-09 09:51+0100\n"
 "PO-Revision-Date: 2013-11-07 17:45+0100\n"
 "Last-Translator: Rudolph Froger <rudolphfroger@estrate.nl>\n"
 "Language: Dutch\n"
@@ -31,34 +31,30 @@ msgstr ""
 "Voer een correcte gebruikersnaam en wachtwoord in. Let op dat beide velden "
 "hoofdlettergevoelig zijn."
 
-#: authentication.py:46
-msgid "This account is inactive."
-msgstr "Dit account is niet actief."
-
-#: authentication.py:107
+#: authentication.py:106
 #, python-brace-format
 msgid "{days} days"
-msgstr ""
+msgstr "{days} dagen"
 
-#: authentication.py:109
+#: authentication.py:108
 msgid "a day"
-msgstr ""
+msgstr "een dag"
 
-#: authentication.py:111
+#: authentication.py:110
 #, python-brace-format
 msgid "{mins} minutes"
-msgstr ""
+msgstr "{mins} minuten"
 
-#: authentication.py:113
+#: authentication.py:112
 msgid "a minute"
-msgstr ""
+msgstr "een minuut"
 
-#: authentication.py:115
+#: authentication.py:114
 #, python-brace-format
 msgid "{secs} seconds"
-msgstr ""
+msgstr "{secs} seconden"
 
-#: authentication.py:130 authentication.py:194
+#: authentication.py:129 authentication.py:193
 #, python-brace-format
 msgid ""
 "Too many failed login attempts. Your account has been locked for {duration}."
@@ -358,6 +354,9 @@ msgid ""
 "Passwords must be changed every\n"
 "        %(max_password_age)s days."
 msgstr "Elke %(max_password_age)s dagen moet een wachtwoord worden aangepast."
+
+#~ msgid "This account is inactive."
+#~ msgstr "Dit account is niet actief."
 
 #~ msgid "Passwords must have at least one symbol"
 #~ msgstr "Wachtwoorden moeten minimaal één symbool bevatten"
