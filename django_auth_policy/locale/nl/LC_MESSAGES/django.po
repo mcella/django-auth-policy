@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-09 09:51+0100\n"
+"POT-Creation-Date: 2014-01-09 17:22+0100\n"
 "PO-Revision-Date: 2013-11-07 17:45+0100\n"
 "Last-Translator: Rudolph Froger <rudolphfroger@estrate.nl>\n"
 "Language: Dutch\n"
@@ -229,47 +229,47 @@ msgstr "Wachtwoorden moeten minimaal {min_count} letters bevatten"
 #: password_strength.py:137
 msgid "Passwords are not allowed to contain (pieces of) your name or email."
 msgstr ""
-"Wachtwoorden mogen geen (onderdelen van) uw naam of e-mailadres bevatten."
+"Wachtwoorden mogen niet (onderdelen van) uw naam of e-mailadres bevatten."
 
 #: password_strength.py:168
 #, python-brace-format
 msgid "Passwords are not allowed to contain the following term(s): {terms}"
 msgstr "Wachtwoorden mogen niet de volgende term(en) bevatten: {terms}"
 
-#: user_admin.py:29
+#: user_admin.py:28
 #: templates/admin/django_auth_policy/set_temporary_password.html:19
 msgid "Username"
 msgstr "Gebruikersnaam"
 
-#: user_admin.py:31
+#: user_admin.py:30
 msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
 msgstr ""
 "Verplicht. 30 tekens of minder. Alleen letters, cijfers en de tekens @/./+/-/"
 "_."
 
-#: user_admin.py:35
+#: user_admin.py:34
 msgid "This value may contain only letters, numbers and @/./+/-/_ characters."
 msgstr ""
 "Deze waarde mag alleen letters, cijfers en de tekens @/./+/-/_ bevatten."
 
-#: user_admin.py:81
+#: user_admin.py:80
 msgid "Unlocked selected usernames"
 msgstr "Ontgrendel geselecteerde gebruikersnamen"
 
-#: user_admin.py:82
+#: user_admin.py:81
 msgid "Unlock usernames of users"
 msgstr "Ontgrendel gebruikersnamen van gebruikers"
 
-#: user_admin.py:88
+#: user_admin.py:87
 #, python-format
 msgid "%s users were (re)activated"
 msgstr "%s gebruikers zijn ge(her)activeerd"
 
-#: user_admin.py:89
+#: user_admin.py:88
 msgid "(Re)activate users"
 msgstr "(Her)activatie gebruikers"
 
-#: user_admin.py:115
+#: user_admin.py:107
 msgid "Set temporary password"
 msgstr "Tijdelijk wachtwoord instellen"
 
