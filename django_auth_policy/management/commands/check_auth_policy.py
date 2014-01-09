@@ -97,18 +97,27 @@ class Command(BaseCommand):
             self.stderr.write('WARNING: login view isn\'t the '
                               'django_auth_policy.views.login view')
 
-        if not issubclass(kwargs.get('authentication_form'),
-                          StrictAuthenticationForm):
-            self.stderr.write('WARNING: login view doesn\'t use '
+        if 'authentication_form' in kwargs:
+            if not issubclass(kwargs['authentication_form'],
+                              StrictAuthenticationForm):
+                self.stderr.write('WARNING: login view doesn\'t use '
+                                  'the StrictAuthenticationForm')
+        else:
+            self.stderr.write('WARNING: could not check if login view uses '
                               'the StrictAuthenticationForm')
 
         # Check password change view
-        url = reverse('password_change')
+        url = reverse(getattr(settings, 'CHANGE_PASSWORD_VIEW_NAME',
+                              'password_change'))
         func, args, kwargs = resolve(url)
-        if not issubclass(kwargs.get('password_change_form'),
-                          StrictPasswordChangeForm):
-            self.stderr.write('WARNING: password_change view doesn\'t use '
-                              'the StrictPasswordChangeForm')
+        if 'password_change_form' in kwargs:
+            if not issubclass(kwargs['password_change_form'],
+                              StrictPasswordChangeForm):
+                self.stderr.write('WARNING: password_change view doesn\'t use '
+                                  'the StrictPasswordChangeForm')
+        else:
+            self.stderr.write('WARNING: could not check if password_change '
+                              'view uses the StrictAuthenticationForm')
 
     def admin(self):
         if not 'django.contrib.admin' in settings.INSTALLED_APPS:
@@ -129,6 +138,13 @@ class Command(BaseCommand):
                               'django_auth_policy admin_password_change view')
 
         # Check UserAdmin
-        if not isinstance(admin.site._registry[user_model], StrictUserAdmin):
+        if not getattr(settings, 'REPLACE_AUTH_USER_ADMIN', True):
+            # Replacing disabled
+            pass
+        elif not user_model in admin.site._registry:
+            self.stderr.write('WARNING: Could not check if user admin '
+                              'doesn\'t use django_auth_policy\'s '
+                              'StrictUserAdmin')
+        elif not isinstance(admin.site._registry[user_model], StrictUserAdmin):
             self.stderr.write('WARNING: User admin doesn\'t use '
                               'django_auth_policy\'s StrictUserAdmin')
