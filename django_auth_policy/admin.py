@@ -52,8 +52,8 @@ class LoginAttemptAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         # Do not actually save anything to prevent changes
-        logger.warning('Prevented change in LoginAttempt item by user %s'
-                       % request.user)
+        logger.info('Prevented change in LoginAttempt item by user %s',
+                    request.user)
 
 
 class PasswordChangeAdmin(admin.ModelAdmin):
@@ -70,8 +70,8 @@ class PasswordChangeAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         # Do not actually save anything to prevent changes
-        logger.warning('Prevented change in PasswordChange item by user %s'
-                       % request.user)
+        logger.info('Prevented change in PasswordChange item by user %s',
+                    request.user)
 
     def get_actions(self, request):
         # Disable deletion of user changes action
@@ -94,8 +94,8 @@ class UserChangeAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         # Do not actually save anything to prevent changes
-        logger.warning('Prevented change in UserChange item by user %s'
-                       % request.user)
+        logger.info('Prevented change in UserChange item by user %s',
+                    request.user)
 
     def get_actions(self, request):
         # Disable deletion of user changes action

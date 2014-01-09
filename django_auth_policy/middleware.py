@@ -39,7 +39,7 @@ class AuthenticationPolicyMiddleware(object):
 
         # Log out disabled users
         if not request.user.is_active:
-            logger.warning('Log out inactive user, user=%s', request.user)
+            logger.info('Log out inactive user, user=%s', request.user)
             view_func, args, kwargs = resolve(self.logout_path)
             return view_func(request, *args, **kwargs)
 

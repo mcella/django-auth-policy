@@ -80,7 +80,8 @@ class LoginTests(TestCase):
 
             self.assertEqual(form.non_field_errors(), [
                 form.error_messages['invalid_login'] % {
-                    'username': form.username_field.verbose_name}])
+                    'username': form.username_field.verbose_name}]
+            )
 
         attempts = LoginAttempt.objects.filter(username=self.user.username,
                                                successful=False, lockout=True)
@@ -105,19 +106,19 @@ class LoginTests(TestCase):
 
         self.assertEqual(self.logger.handlers[0].stream.getvalue(), (
             u'INFO Authentication attempt, username=rf, address=10.0.0.1\n'
-            u'WARNING Authentication failure, username=rf, address=10.0.0.1, '
+            u'INFO Authentication failure, username=rf, address=10.0.0.1, '
             u'invalid authentication.\n'
             u'INFO Authentication attempt, username=rf, address=10.0.0.2\n'
-            u'WARNING Authentication failure, username=rf, address=10.0.0.2, '
+            u'INFO Authentication failure, username=rf, address=10.0.0.2, '
             u'invalid authentication.\n'
             u'INFO Authentication attempt, username=rf, address=10.0.0.3\n'
-            u'WARNING Authentication failure, username=rf, address=10.0.0.3, '
+            u'INFO Authentication failure, username=rf, address=10.0.0.3, '
             u'invalid authentication.\n'
             u'INFO Authentication attempt, username=rf, address=127.0.0.1\n'
-            u'WARNING Authentication failure, username=rf, address=127.0.0.1, '
+            u'INFO Authentication failure, username=rf, address=127.0.0.1, '
             u'username locked\n'
             u'INFO Authentication attempt, username=rf, address=127.0.0.1\n'
-            u'WARNING Authentication failure, username=rf, address=127.0.0.1, '
+            u'INFO Authentication failure, username=rf, address=127.0.0.1, '
             u'username locked\n'))
 
     def test_address_lockout(self):
@@ -137,7 +138,8 @@ class LoginTests(TestCase):
 
             self.assertEqual(form.non_field_errors(), [
                 form.error_messages['invalid_login'] % {
-                    'username': form.username_field.verbose_name}])
+                    'username': form.username_field.verbose_name}]
+            )
 
         attempts = LoginAttempt.objects.filter(source_address=addr,
                                                successful=False, lockout=True)
@@ -155,16 +157,16 @@ class LoginTests(TestCase):
 
         self.assertEqual(self.logger.handlers[0].stream.getvalue(), (
             u'INFO Authentication attempt, username=rf0, address=1.2.3.4\n'
-            u'WARNING Authentication failure, username=rf0, address=1.2.3.4, '
+            u'INFO Authentication failure, username=rf0, address=1.2.3.4, '
             u'invalid authentication.\n'
             u'INFO Authentication attempt, username=rf1, address=1.2.3.4\n'
-            u'WARNING Authentication failure, username=rf1, address=1.2.3.4, '
+            u'INFO Authentication failure, username=rf1, address=1.2.3.4, '
             u'invalid authentication.\n'
             u'INFO Authentication attempt, username=rf2, address=1.2.3.4\n'
-            u'WARNING Authentication failure, username=rf2, address=1.2.3.4, '
+            u'INFO Authentication failure, username=rf2, address=1.2.3.4, '
             u'invalid authentication.\n'
             u'INFO Authentication attempt, username=rf, address=1.2.3.4\n'
-            u'WARNING Authentication failure, username=rf, address=1.2.3.4, '
+            u'INFO Authentication failure, username=rf, address=1.2.3.4, '
             u'address locked\n'))
 
     def test_inactive_user(self):
@@ -177,11 +179,14 @@ class LoginTests(TestCase):
             'username': 'rf', 'password': 'password'})
         self.assertFalse(form.is_valid())
         self.assertEqual(form.non_field_errors(), [
-            form.error_messages['inactive']])
+            form.error_messages['invalid_login'] % {
+                'username': form.username_field.verbose_name
+            }]
+        )
 
         self.assertEqual(self.logger.handlers[0].stream.getvalue(), (
             u'INFO Authentication attempt, username=rf, address=127.0.0.1\n'
-            u'WARNING Authentication failure, username=rf, address=127.0.0.1, '
+            u'INFO Authentication failure, username=rf, address=127.0.0.1, '
             u'user inactive.\n'))
 
     def test_lock_period(self):
@@ -277,15 +282,18 @@ class UserExpiryTests(TestCase):
             'username': 'rf', 'password': 'password'})
         self.assertFalse(form.is_valid())
         self.assertEqual(form.non_field_errors(), [
-            form.error_messages['inactive']])
+            form.error_messages['invalid_login'] % {
+                'username': form.username_field.verbose_name
+            }]
+        )
 
         # Check log messages
         self.assertEqual(self.logger.handlers[0].stream.getvalue(), (
             u'INFO Authentication attempt, username=rf, address=127.0.0.1\n'
             u'INFO Authentication success, username=rf, address=127.0.0.1\n'
             u'INFO Authentication attempt, username=rf, address=127.0.0.1\n'
-            u'WARNING User rf disabled because last login was at %s\n'
-            u'WARNING Authentication failure, username=rf, address=127.0.0.1, '
+            u'INFO User rf disabled because last login was at %s\n'
+            u'INFO Authentication failure, username=rf, address=127.0.0.1, '
             u'user inactive.\n' % expire_at))
 
 

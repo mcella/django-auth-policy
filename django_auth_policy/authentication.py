@@ -46,29 +46,29 @@ class AuthenticationBasicChecks(AuthenticationPolicy):
 
     def pre_auth_check(self, loginattempt, password):
         if not loginattempt.username:
-            logger.warning(u'Authentication failure, address=%s, '
-                           'no username supplied.',
-                           loginattempt.source_address)
+            logger.info(u'Authentication failure, address=%s, '
+                        'no username supplied.',
+                        loginattempt.source_address)
             raise ValidationError(self.text, code='invalid_login')
 
         if not password:
-            logger.warning(u'Authentication failure, username=%s, '
-                           'address=%s, no password supplied.',
-                           loginattempt.username,
-                           loginattempt.source_address)
+            logger.info(u'Authentication failure, username=%s, '
+                        'address=%s, no password supplied.',
+                        loginattempt.username,
+                        loginattempt.source_address)
             raise ValidationError(self.text, code='invalid_login')
 
     def post_auth_check(self, loginattempt):
         if loginattempt.user is None:
-            logger.warning(u'Authentication failure, username=%s, '
-                           'address=%s, invalid authentication.',
-                           loginattempt.username, loginattempt.source_address)
+            logger.info(u'Authentication failure, username=%s, '
+                        'address=%s, invalid authentication.',
+                        loginattempt.username, loginattempt.source_address)
             raise ValidationError(self.text, code='invalid_login')
 
         if not loginattempt.user.is_active:
-            logger.warning(u'Authentication failure, username=%s, '
-                           'address=%s, user inactive.',
-                           loginattempt.username, loginattempt.source_address)
+            logger.info(u'Authentication failure, username=%s, '
+                        'address=%s, user inactive.',
+                        loginattempt.username, loginattempt.source_address)
             raise ValidationError(self.text, code='inactive')
 
 
@@ -92,8 +92,8 @@ class AuthenticationDisableExpiredUsers(AuthenticationPolicy):
                                                   last_login__lt=expire_at)
 
         for user in expired:
-            logger.warning('User %s disabled because last login was at %s',
-                           unicode(user), user.last_login)
+            logger.info('User %s disabled because last login was at %s',
+                        unicode(user), user.last_login)
             # Send signal to be used to alert admins
             signals.user_expired.send(sender=user, user=user)
 
@@ -162,9 +162,9 @@ class AuthenticationLockedUsername(AuthenticationPolicy):
                 timestamp__gt=lockout_count_from)
 
         if user_lockout.count() >= self.max_failed:
-            logger.warning(u'Authentication failure, username=%s, address=%s, '
-                           'username locked', loginattempt.username,
-                           loginattempt.source_address)
+            logger.info(u'Authentication failure, username=%s, address=%s, '
+                        'username locked', loginattempt.username,
+                        loginattempt.source_address)
             raise ValidationError(self.validation_msg,
                                   code='username_locked_out')
 
@@ -226,9 +226,10 @@ class AuthenticationLockedRemoteAddress(AuthenticationPolicy):
                 timestamp__gt=lockout_count_from)
 
         if user_lockout.count() >= self.max_failed:
-            logger.warning(u'Authentication failure, username=%s, address=%s, '
-                           'address locked', loginattempt.username,
-                           loginattempt.source_address)
+            logger.info(u'Authentication failure, username=%s, address=%s, '
+                        'address locked',
+                        loginattempt.username,
+                        loginattempt.source_address)
             raise ValidationError(self.validation_msg,
                                   code='address_locked_out')
 
