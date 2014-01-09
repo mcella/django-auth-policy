@@ -116,14 +116,11 @@ class AuthenticationPolicyHandler(object):
         logger.info('Authentication attempt, username=%s, address=%s',
                     username, remote_addr)
 
-        if not username and not password:
-            return None
-
         with transaction.atomic():
             username_len = LoginAttempt._meta.get_field('username').max_length
             hostname_len = LoginAttempt._meta.get_field('hostname').max_length
             attempt = LoginAttempt.objects.create(
-                username=username[:username_len],
+                username=username[:username_len] if username else '-',
                 source_address=remote_addr,
                 hostname=host[:hostname_len],
                 successful=False,
