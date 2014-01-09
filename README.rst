@@ -16,7 +16,6 @@ Available policy rules:
 Every policy can be disabled and many configuration options are available,
 see ``django_auth_policy/settings.py``.
 
-Documentation is very currently very limited and available in the "docs"
-directory.
+Documentation is currently very limited and available in the "docs" directory.
 
 To run the test suite run ``run-tests.py`` or ``tox``.
