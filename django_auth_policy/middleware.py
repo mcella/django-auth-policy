@@ -1,6 +1,7 @@
 import logging
 
 from django.core.urlresolvers import resolve, reverse
+from django.views.decorators.csrf import requires_csrf_token
 from django.conf import settings
 
 from django_auth_policy.handlers import PasswordChangePolicyHandler
@@ -20,9 +21,8 @@ class AuthenticationPolicyMiddleware(object):
     handled by Django without the policy being enforced.
     """
 
-    change_password_path = reverse(getattr(settings,
-                                           'CHANGE_PASSWORD_VIEW_NAME',
-                                           'password_change'))
+    change_password_path = reverse(getattr(
+        settings, 'ENFORCED_PASSWORD_CHANGE_VIEW_NAME', 'password_change'))
     login_path = reverse(getattr(settings, 'LOGIN_VIEW_NAME', 'login'))
     logout_path = reverse(getattr(settings, 'LOGOUT_VIEW_NAME', 'logout'))
 
@@ -60,7 +60,6 @@ class AuthenticationPolicyMiddleware(object):
 
         # When password change is enforced, check if this is still required
         # for next request
-        # FIXME When is this necessary?
         if not request.session.get('password_change_enforce', False):
             return response
 
@@ -77,16 +76,19 @@ class AuthenticationPolicyMiddleware(object):
         """
         view_func, args, kwargs = resolve(self.change_password_path)
 
-        assert issubclass(kwargs['password_change_form'],
-                          StrictPasswordChangeForm), (
-            "Use django_auth_policy StrictPasswordChangeForm for password "
-            "changes.")
+        if 'password_change_form' in kwargs:
+            assert issubclass(kwargs['password_change_form'],
+                              StrictPasswordChangeForm), (
+                "Use django_auth_policy StrictPasswordChangeForm for password "
+                "changes.")
 
         # Provide extra context to be used in the password_change template
-        if not 'extra_context' in kwargs:
-            kwargs['extra_context'] = {}
-        kwargs['extra_context']['password_change_enforce'] = \
-            request.session.get('password_change_enforce')
-        kwargs['extra_context']['password_change_enforce_msg'] = \
-            request.session.get('password_change_enforce_msg')
-        return view_func(request, *args, **kwargs)
+        if 'extra_context' in kwargs:
+            kwargs['extra_context']['password_change_enforce'] = \
+                request.session.get('password_change_enforce')
+            kwargs['extra_context']['password_change_enforce_msg'] = \
+                request.session.get('password_change_enforce_msg')
+
+        # Run 'requires_csrf_token' because CSRF middleware might have been
+        # skipped over here
+        return requires_csrf_token(view_func)(request, *args, **kwargs)

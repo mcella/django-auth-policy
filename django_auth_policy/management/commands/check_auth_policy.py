@@ -107,7 +107,7 @@ class Command(BaseCommand):
                               'the StrictAuthenticationForm')
 
         # Check password change view
-        url = reverse(getattr(settings, 'CHANGE_PASSWORD_VIEW_NAME',
+        url = reverse(getattr(settings, 'ENFORCED_PASSWORD_CHANGE_VIEW_NAME',
                               'password_change'))
         func, args, kwargs = resolve(url)
         if 'password_change_form' in kwargs:
