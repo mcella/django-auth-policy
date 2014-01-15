@@ -3,6 +3,7 @@ import logging
 from django.core.urlresolvers import resolve, reverse
 from django.views.decorators.csrf import requires_csrf_token
 from django.conf import settings
+from django import http
 
 from django_auth_policy.handlers import PasswordChangePolicyHandler
 from django_auth_policy.forms import StrictPasswordChangeForm
@@ -91,4 +92,46 @@ class AuthenticationPolicyMiddleware(object):
 
         # Run 'requires_csrf_token' because CSRF middleware might have been
         # skipped over here
+        return requires_csrf_token(view_func)(request, *args, **kwargs)
+
+
+class LoginRequiredMiddleware(object):
+    """ Middleware which enforces authentication for all requests.
+    """
+    login_path = reverse(getattr(settings, 'LOGIN_VIEW_NAME', 'login'))
+    logout_path = reverse(getattr(settings, 'LOGOUT_VIEW_NAME', 'logout'))
+    public_urls = getattr(settings, 'PUBLIC_URLS', [])
+    public_urls.append(login_path)
+    public_urls.append(logout_path)
+
+    def process_request(self, request):
+        if not hasattr(request, 'user'):
+            raise Exception('Install Authentication middleware before '
+                            'LoginRequiredMiddleware')
+
+        if request.user.is_authenticated():
+            return None
+
+        # Do not require authentication for certain URLs
+        if request.path in self.public_urls:
+            return None
+
+        # Django should not serve STATIC files in production, but for
+        # development this should be no problem
+        if (settings.STATIC_URL and
+                request.path.startswith(settings.STATIC_URL)):
+
+            if settings.DEBUG:
+                return None
+            else:
+                return http.HttpResponseForbidden('Login required')
+
+        # When serving MEDIA files through Django we will not display a login
+        # form, but instead return HTTP 403 Forbidden
+        if (settings.MEDIA_URL and
+                request.path.startswith(settings.MEDIA_URL)):
+
+            return http.HttpResponseForbidden('Login required')
+
+        view_func, args, kwargs = resolve(self.login_path)
         return requires_csrf_token(view_func)(request, *args, **kwargs)
