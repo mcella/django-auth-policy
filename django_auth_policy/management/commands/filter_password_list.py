@@ -21,6 +21,11 @@ class Command(BaseCommand):
         for arg in args:
             fh = open(arg, 'r')
             for pw in fh:
+                try:
+                    pw = pw.decode('utf8')
+                except UnicodeDecodeError:
+                    continue
+
                 pw = pw.strip()
 
                 try:
@@ -28,6 +33,6 @@ class Command(BaseCommand):
                 except ValidationError:
                     continue
 
-                print pw
+                print pw.encode('utf8')
 
             fh.close()

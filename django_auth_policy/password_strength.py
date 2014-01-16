@@ -8,8 +8,11 @@ from django_auth_policy import BasePolicy
 
 
 def _normalize_unicode(value):
-    value = unicodedata.normalize('NFKD', unicode(value))
-    return value.encode('ascii', 'ignore').strip().lower()
+    try:
+        value = unicodedata.normalize('NFKD', unicode(value))
+        return value.encode('ascii', 'ignore').strip().lower()
+    except UnicodeDecodeError:
+        return value
 
 
 class PasswordStrengthPolicy(BasePolicy):
