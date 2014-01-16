@@ -33,9 +33,10 @@ class PasswordStrengthPolicyHandler(object):
                     'caption': policy.policy_caption,
                 })
 
-    def validate(self, password, user):
+    def validate(self, password, user=None):
         """ Validate password strength against all password policies.
-        One should also provide the user that (will) use this password.
+        One should also provide the user (when available) that (will) use
+        this password.
         Policies will raise a ValidationError when the password doesn't comply
         """
         for pol in self._policies:

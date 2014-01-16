@@ -28,7 +28,7 @@ class PasswordStrengthPolicy(BasePolicy):
     """
     show_policy = True
 
-    def validate(self, value, user):
+    def validate(self, value, user=None):
         raise NotImplemented()
 
     @property
@@ -44,7 +44,7 @@ class PasswordMinLength(PasswordStrengthPolicy):
     min_length = 10
     text = _('Passwords must be at least {min_length} characters in length.')
 
-    def validate(self, value, user):
+    def validate(self, value, user=None):
         if self.min_length is None:
             return
 
@@ -66,7 +66,7 @@ class PasswordContains(PasswordStrengthPolicy):
     text = None
     plural_text = None
 
-    def validate(self, value, user):
+    def validate(self, value, user=None):
         pw_set = set(value)
         if len(pw_set.intersection(self.chars)) < self.min_count:
             raise ValidationError(self.text, 'password_complexity')
@@ -139,7 +139,10 @@ class PasswordUserAttrs(PasswordStrengthPolicy):
 
     _non_alphanum = re.compile(r'[^a-z0-9]')
 
-    def validate(self, value, user):
+    def validate(self, value, user=None):
+        if user is None:
+            return
+
         simple_pass = _normalize_unicode(value)
         for attr in self.user_attrs:
             v = getattr(user, attr, None)
@@ -175,7 +178,7 @@ class PasswordDisallowedTerms(PasswordStrengthPolicy):
 
         super(PasswordDisallowedTerms, self).__init__(**kwargs)
 
-    def validate(self, value, user):
+    def validate(self, value, user=None):
         simple_pass = _normalize_unicode(value)
         found = []
         for term in self.terms:
