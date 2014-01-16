@@ -23,8 +23,6 @@ IDEAS / TODOS
 
   Filter this list based on the other policy rules.
 
-* Optionally restrict domain names of the email addresses of users
-
 * Optionally use different source of random data for temporary password
   generation
 
@@ -49,3 +47,6 @@ IDEAS / TODOS
 
 * Add password hasher for bcrypt/scrypt/PDKDF2 which stores nonce/salt
   seperately (not in the database) but still accessible by all web processes
+
+* Use sensitive_variables and sensitive_post_parameters to hide passwords from
+  Django error reports

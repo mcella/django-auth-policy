@@ -7,6 +7,7 @@ from cStringIO import StringIO
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model, SESSION_KEY
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from django_auth_policy.models import LoginAttempt, PasswordChange
@@ -15,7 +16,8 @@ from django_auth_policy.forms import (StrictAuthenticationForm,
                                       StrictSetPasswordForm)
 from django_auth_policy.authentication import (AuthenticationLockedUsername,
                                                AuthenticationLockedRemoteAddress,
-                                               AuthenticationDisableExpiredUsers)
+                                               AuthenticationDisableExpiredUsers,
+                                               AuthenticationUsernameWhitelist)
 from django_auth_policy.password_change import (PasswordChangeExpired,
                                                 PasswordChangeTemporary)
 from django_auth_policy.password_strength import (PasswordMinLength,
@@ -590,3 +592,25 @@ class PasswordStrengthTests(TestCase):
             if not valid:
                 errs = [unicode(policy.policy_text)]
                 self.assertEqual(form.errors['new_password1'], errs)
+
+    def test_authentication_username_whitelist(self):
+        policy = AuthenticationUsernameWhitelist(
+            whitelist = ['@example.com$', '^rudolph']
+        )
+
+        # This should be accepted:
+        loginattempt = LoginAttempt(username='rf@example.com')
+        policy.pre_auth_check(loginattempt, 'secret')
+
+        # Matches second regex:
+        loginattempt = LoginAttempt(username='rudolphexample')
+        policy.pre_auth_check(loginattempt, 'secret')
+
+        # And this fails:
+        loginattempt.username = 'no-valid@axemple.com'
+        self.assertRaises(
+            ValidationError,
+            policy.pre_auth_check,
+            loginattempt,
+            'secret'
+        )

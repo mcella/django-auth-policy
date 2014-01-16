@@ -1,5 +1,6 @@
 import datetime
 import logging
+import re
 
 from django.utils import timezone
 from django.contrib.auth import get_user_model
@@ -242,3 +243,29 @@ class AuthenticationLockedRemoteAddress(AuthenticationPolicy):
     def validation_msg(self):
         dur = _format_lockduration(self.lockout_duration)
         return self.text.format(duration=dur)
+
+
+class AuthenticationUsernameWhitelist(AuthenticationPolicy):
+    """ Only allow usernames that match regular expressions
+    Useful to restrict login with email addresses with a certain domainname
+    """
+    # Regexes
+    whitelist = []
+    _whitelist_regex = []
+    text = _("Please enter a correct username and password. "
+             "Note that both fields may be case-sensitive.")
+
+    def pre_auth_check(self, loginattempt, password):
+        if not self._whitelist_regex:
+            for pattern in self.whitelist:
+                self._whitelist_regex.append(re.compile(pattern))
+
+        for regex in self._whitelist_regex:
+            if regex.search(loginattempt.username):
+                logger.debug('Username matched whitelisted pattern %s',
+                             regex.pattern)
+                return
+
+        logger.info(u'Authentication failure, username %s did not match '
+                    'whitelisted pattern(s)', loginattempt.username)
+        raise ValidationError(self.text, code='invalid_login')
