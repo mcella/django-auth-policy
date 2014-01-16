@@ -142,9 +142,10 @@ class AuthenticationPolicyHandler(object):
         logger.info(u'Authentication success, username=%s, address=%s',
                     attempt.username, attempt.source_address)
 
-        attempt.successful = True
-        attempt.lockout = False
-        attempt.save()
+        with transaction.atomic():
+            attempt.successful = True
+            attempt.lockout = False
+            attempt.save()
 
         for pol in self._policies:
             pol.auth_success(attempt)
