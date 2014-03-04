@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils.http import is_safe_url
 from django.shortcuts import resolve_url
@@ -9,7 +9,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 
-# Avoid shadowing the login() view below.
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
 from django.contrib.sites.models import get_current_site
 
@@ -62,3 +62,16 @@ def login(request, template_name='registration/login.html',
         context.update(extra_context)
     return TemplateResponse(request, template_name, context,
                             current_app=current_app)
+
+
+@login_required
+def login_required_view(request):
+    """ View used in tests
+    """
+    return HttpResponse('ok')
+
+
+def another_view(request):
+    """ View used in tests
+    """
+    return HttpResponse('another view')

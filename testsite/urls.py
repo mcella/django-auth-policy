@@ -1,18 +1,21 @@
-from django import http
 from django.conf.urls import patterns, url
-from django.contrib.auth.decorators import login_required
 
-from django_auth_policy.urls import urlpatterns
+from django_auth_policy.forms import (StrictAuthenticationForm,
+                                      StrictPasswordChangeForm)
 
 
-@login_required
-def login_required_view(request):
-    return http.HttpResponse('ok')
-
-def another_view(request):
-    return http.HttpResponse('another view')
-
-urlpatterns = urlpatterns + patterns('',
-    url(r'^$', login_required_view, name='login_required_view'),
-    url(r'^another/$', another_view, name='another_view'),
-    )
+urlpatterns = patterns('',
+    url(r'^login/$', 'testsite.views.login', name='login',
+        kwargs={'authentication_form': StrictAuthenticationForm,
+                'template_name': 'login.html'}),
+    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login',
+        name='logout'),
+    url(r'^password_change/$', 'django.contrib.auth.views.password_change',
+        name='password_change',
+        kwargs={'password_change_form': StrictPasswordChangeForm,
+                'template_name': 'change_password.html',
+                'post_change_redirect': '/',
+                }),
+    url(r'^$', 'testsite.views.login_required_view', name='login_required_view'),
+    url(r'^another/$', 'testsite.views.another_view', name='another_view'),
+)

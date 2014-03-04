@@ -32,7 +32,7 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 LOGIN_REDIRECT_URL = '/'
 
-ROOT_URLCONF = 'django_auth_policy.testsite.urls'
+ROOT_URLCONF = 'testsite.urls'
 
 # Required for Django 1.4+
 STATIC_URL = '/static/'

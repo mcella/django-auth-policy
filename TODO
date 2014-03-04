@@ -1,9 +1,8 @@
 IDEAS / TODOS
 =============
 
-* Optionally keep a history of passwords (hashed) to prevent password reuse
-
-  password model field has been added.
+* Optionally keep a limited history of passwords (hashed) to prevent password
+  reuse, password model field has been added.
 
 * Expand docs
 
@@ -32,8 +31,6 @@ IDEAS / TODOS
 * Optionally measure entropy of passwords
   Research: any good enough algorithms available?
 
-* Move testsite into seperate folder als move all URLs to testsite
-
 * Add password strength ideas from OWASP:
   https://www.owasp.org/index.php/Authentication_Cheat_Sheet#Implement_Proper_Password_Strength_Controls
 
@@ -48,3 +45,16 @@ IDEAS / TODOS
 
 * Use sensitive_variables and sensitive_post_parameters to hide passwords from
   Django error reports
+
+* Optionally forbid/logout users when certain headers change (USER_AGENT,
+  REMOTE_ADDR, X_FORWARDED_FOR) Also log this.
+
+* Only login from whitelisted IP addresses/ranges.
+  Or provide example which limits admin/superuser login
+  to certain IP addresses by sending the REMOTE_ADDR to authentication backend.
+
+* Only allow certain usernames at login (list of possible regex-es)
+  Could be used to enforce usernames to end with company domainname.
+
+* Middleware should not return login view / password change view for AJAX
+  requests, but should return HTTP Forbidden

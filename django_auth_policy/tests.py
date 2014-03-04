@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+These tests work together with the 'testsite' provided with django_auth_policy
+"""
 import datetime
 import logging
 import collections
@@ -30,7 +33,7 @@ from django_auth_policy.password_strength import (PasswordMinLength,
 
 
 class LoginTests(TestCase):
-    urls = 'django_auth_policy.testsite.urls'
+    urls = 'testsite.urls'
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -246,7 +249,7 @@ class LoginTests(TestCase):
 
 
 class UserExpiryTests(TestCase):
-    urls = 'django_auth_policy.testsite.urls'
+    urls = 'testsite.urls'
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -300,7 +303,7 @@ class UserExpiryTests(TestCase):
 
 
 class PasswordChangeTests(TestCase):
-    urls = 'django_auth_policy.testsite.urls'
+    urls = 'testsite.urls'
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -460,7 +463,7 @@ class PasswordChangeTests(TestCase):
 
 
 class PasswordStrengthTests(TestCase):
-    urls = 'django_auth_policy.testsite.urls'
+    urls = 'testsite.urls'
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
