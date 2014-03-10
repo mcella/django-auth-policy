@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-09 17:22+0100\n"
+"POT-Creation-Date: 2014-03-11 00:43+0100\n"
 "PO-Revision-Date: 2013-11-07 17:45+0100\n"
 "Last-Translator: Rudolph Froger <rudolphfroger@estrate.nl>\n"
 "Language: Dutch\n"
@@ -23,7 +23,7 @@ msgstr "%s mislukte pogingen ontgrendeld"
 msgid "Unlock"
 msgstr "Ontgrendel"
 
-#: authentication.py:44
+#: authentication.py:45 authentication.py:255
 msgid ""
 "Please enter a correct username and password. Note that both fields may be "
 "case-sensitive."
@@ -31,30 +31,30 @@ msgstr ""
 "Voer een correcte gebruikersnaam en wachtwoord in. Let op dat beide velden "
 "hoofdlettergevoelig zijn."
 
-#: authentication.py:106
+#: authentication.py:107
 #, python-brace-format
 msgid "{days} days"
 msgstr "{days} dagen"
 
-#: authentication.py:108
+#: authentication.py:109
 msgid "a day"
 msgstr "een dag"
 
-#: authentication.py:110
+#: authentication.py:111
 #, python-brace-format
 msgid "{mins} minutes"
 msgstr "{mins} minuten"
 
-#: authentication.py:112
+#: authentication.py:113
 msgid "a minute"
 msgstr "een minuut"
 
-#: authentication.py:114
+#: authentication.py:115
 #, python-brace-format
 msgid "{secs} seconds"
 msgstr "{secs} seconden"
 
-#: authentication.py:129 authentication.py:193
+#: authentication.py:130 authentication.py:194
 #, python-brace-format
 msgid ""
 "Too many failed login attempts. Your account has been locked for {duration}."
@@ -173,43 +173,44 @@ msgid "Your must change your temporary password into a personal password."
 msgstr ""
 "U moet uw tijdelijke wachtwoord aanpassen in een persoonlijk wachtwoord."
 
-#: password_strength.py:45
+#: password_strength.py:48
 #, python-brace-format
 msgid "Passwords must be at least {min_length} characters in length."
 msgstr "Wachtwoorden moeten minimaal {min_length} tekens lang zijn."
 
-#: password_strength.py:88
-msgid "Passwords must have at least one lowercase character"
-msgstr "Wachtwoorden moeten minimaal één kleine letter bevatten"
-
-#: password_strength.py:89
-#, python-brace-format
-msgid "Passwords must have at least {min_count} lowercase characters"
-msgstr "Wachtwoorden moeten minimaal {min_count} kleine letters bevatten"
-
-#: password_strength.py:95
+#: password_strength.py:91
 msgid "Passwords must have at least one uppercase character"
 msgstr "Wachtwoorden moeten minimaal één hoofdletter bevatten"
 
-#: password_strength.py:96
+#: password_strength.py:92
 #, python-brace-format
 msgid "Passwords must have at least {min_count} uppercase characters"
 msgstr "Wachtwoorden moeten minimaal {min_count} hoofdletter bevatten"
 
-#: password_strength.py:102
+#: password_strength.py:98
+#, fuzzy
+msgid "Passwords must have at least one lowecase character"
+msgstr "Wachtwoorden moeten minimaal één kleine letter bevatten"
+
+#: password_strength.py:99
+#, python-brace-format
+msgid "Passwords must have at least {min_count} lowercase characters"
+msgstr "Wachtwoorden moeten minimaal {min_count} kleine letters bevatten"
+
+#: password_strength.py:105
 msgid "Passwords must have at least one number"
 msgstr "Wachtwoorden moeten minimaal één cijfer bevatten"
 
-#: password_strength.py:103
+#: password_strength.py:106
 #, python-brace-format
 msgid "Passwords must have at least {min_count} numbers"
 msgstr "Wachtwoorden moeten minimaal {min_count} cijfers bevatten"
 
-#: password_strength.py:109
+#: password_strength.py:112
 msgid "Passwords must have at least one special character (punctuation)"
 msgstr "Wachtwoorden moeten minimaal één speciaal teken (leesteken) bevatten"
 
-#: password_strength.py:110
+#: password_strength.py:113
 #, python-brace-format
 msgid ""
 "Passwords must have at least {min_count} special characters (punctuation)"
@@ -217,21 +218,21 @@ msgstr ""
 "Wachtwoorden moeten minimaal {min_count} speciale tekens (leestekens) "
 "bevatten"
 
-#: password_strength.py:116
+#: password_strength.py:119
 msgid "Passwords must have at least one alphabetic character"
 msgstr "Wachtwoorden moeten minimaal één letter bevatten"
 
-#: password_strength.py:117
+#: password_strength.py:120
 #, python-brace-format
 msgid "Passwords must have at least {min_count} alphabetic characters"
 msgstr "Wachtwoorden moeten minimaal {min_count} letters bevatten"
 
-#: password_strength.py:137
+#: password_strength.py:140
 msgid "Passwords are not allowed to contain (pieces of) your name or email."
 msgstr ""
 "Wachtwoorden mogen niet (onderdelen van) uw naam of e-mailadres bevatten."
 
-#: password_strength.py:168
+#: password_strength.py:174
 #, python-brace-format
 msgid "Passwords are not allowed to contain the following term(s): {terms}"
 msgstr "Wachtwoorden mogen niet de volgende term(en) bevatten: {terms}"
@@ -336,24 +337,20 @@ msgstr "Uw tijdelijke wachtwoord"
 msgid "Compose email"
 msgstr "E-mail samenstellen"
 
-#: testsite/templates/change_password.html:4
-msgid "Change password"
-msgstr "Wachtwoord aanpassen"
+#~ msgid "Change password"
+#~ msgstr "Wachtwoord aanpassen"
 
-#: testsite/templates/change_password.html:6
-msgid "Password policy"
-msgstr "Wachtwoordbeleid"
+#~ msgid "Password policy"
+#~ msgstr "Wachtwoordbeleid"
 
-#: testsite/templates/change_password.html:12
-msgid "Every password must have:"
-msgstr "Elk wachtwoord bevat:"
+#~ msgid "Every password must have:"
+#~ msgstr "Elk wachtwoord bevat:"
 
-#: testsite/templates/change_password.html:20
-#, python-format
-msgid ""
-"Passwords must be changed every\n"
-"        %(max_password_age)s days."
-msgstr "Elke %(max_password_age)s dagen moet een wachtwoord worden aangepast."
+#~ msgid ""
+#~ "Passwords must be changed every\n"
+#~ "        %(max_password_age)s days."
+#~ msgstr ""
+#~ "Elke %(max_password_age)s dagen moet een wachtwoord worden aangepast."
 
 #~ msgid "This account is inactive."
 #~ msgstr "Dit account is niet actief."

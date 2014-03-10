@@ -88,16 +88,16 @@ class PasswordContains(PasswordStrengthPolicy):
 
 class PasswordContainsUpperCase(PasswordContains):
     chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    text = _('Passwords must have at least one lowercase character')
+    text = _('Passwords must have at least one uppercase character')
     plural_text = _('Passwords must have at least {min_count} '
-                    'lowercase characters')
+                    'uppercase characters')
 
 
 class PasswordContainsLowerCase(PasswordContains):
     chars = 'abcdefghijklmnopqrstuvwxyz'
-    text = _('Passwords must have at least one uppercase character')
+    text = _('Passwords must have at least one lowecase character')
     plural_text = _('Passwords must have at least {min_count} '
-                    'uppercase characters')
+                    'lowercase characters')
 
 
 class PasswordContainsNumbers(PasswordContains):
