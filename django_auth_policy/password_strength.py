@@ -88,37 +88,37 @@ class PasswordContains(PasswordStrengthPolicy):
 
 class PasswordContainsUpperCase(PasswordContains):
     chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    text = _('Passwords must have at least one uppercase character')
+    text = _('Passwords must have at least one uppercase character.')
     plural_text = _('Passwords must have at least {min_count} '
-                    'uppercase characters')
+                    'uppercase characters.')
 
 
 class PasswordContainsLowerCase(PasswordContains):
     chars = 'abcdefghijklmnopqrstuvwxyz'
-    text = _('Passwords must have at least one lowecase character')
+    text = _('Passwords must have at least one lowecase character.')
     plural_text = _('Passwords must have at least {min_count} '
-                    'lowercase characters')
+                    'lowercase characters.')
 
 
 class PasswordContainsNumbers(PasswordContains):
     chars = '0123456789'
-    text = _('Passwords must have at least one number')
+    text = _('Passwords must have at least one number.')
     plural_text = _('Passwords must have at least {min_count} '
-                    'numbers')
+                    'numbers.')
 
 
 class PasswordContainsSymbols(PasswordContains):
     chars = '!@#$%^&*()_+-={}[]:;"\'|\\,.<>?/~` '
-    text = _('Passwords must have at least one special character (punctuation)')
+    text = _('Passwords must have at least one special character (punctuation).')
     plural_text = _('Passwords must have at least {min_count} special '
-                    'characters (punctuation)')
+                    'characters (punctuation).')
 
 
 class PasswordContainsAlphabetics(PasswordContains):
     chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    text = _('Passwords must have at least one alphabetic character')
+    text = _('Passwords must have at least one alphabetic character.')
     plural_text = _('Passwords must have at least {min_count} '
-                    'alphabetic characters')
+                    'alphabetic characters.')
 
 
 class PasswordUserAttrs(PasswordStrengthPolicy):
@@ -172,7 +172,7 @@ class PasswordDisallowedTerms(PasswordStrengthPolicy):
     """
     terms = None
     text = _('Passwords are not allowed to contain the following term(s): '
-             '{terms}')
+             '{terms}.')
     show_policy = False
 
     def __init__(self, **kwargs):

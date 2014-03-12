@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-11 00:43+0100\n"
+"POT-Creation-Date: 2014-03-12 15:02+0100\n"
 "PO-Revision-Date: 2013-11-07 17:45+0100\n"
 "Last-Translator: Rudolph Froger <rudolphfroger@estrate.nl>\n"
 "Language: Dutch\n"
@@ -179,53 +179,52 @@ msgid "Passwords must be at least {min_length} characters in length."
 msgstr "Wachtwoorden moeten minimaal {min_length} tekens lang zijn."
 
 #: password_strength.py:91
-msgid "Passwords must have at least one uppercase character"
-msgstr "Wachtwoorden moeten minimaal één hoofdletter bevatten"
+msgid "Passwords must have at least one uppercase character."
+msgstr "Wachtwoorden moeten minimaal één hoofdletter bevatten."
 
 #: password_strength.py:92
 #, python-brace-format
-msgid "Passwords must have at least {min_count} uppercase characters"
-msgstr "Wachtwoorden moeten minimaal {min_count} hoofdletter bevatten"
+msgid "Passwords must have at least {min_count} uppercase characters."
+msgstr "Wachtwoorden moeten minimaal {min_count} hoofdletter bevatten."
 
 #: password_strength.py:98
-#, fuzzy
-msgid "Passwords must have at least one lowecase character"
-msgstr "Wachtwoorden moeten minimaal één kleine letter bevatten"
+msgid "Passwords must have at least one lowecase character."
+msgstr "Wachtwoorden moeten minimaal één kleine letter bevatten."
 
 #: password_strength.py:99
 #, python-brace-format
-msgid "Passwords must have at least {min_count} lowercase characters"
-msgstr "Wachtwoorden moeten minimaal {min_count} kleine letters bevatten"
+msgid "Passwords must have at least {min_count} lowercase characters."
+msgstr "Wachtwoorden moeten minimaal {min_count} kleine letters bevatten."
 
 #: password_strength.py:105
-msgid "Passwords must have at least one number"
-msgstr "Wachtwoorden moeten minimaal één cijfer bevatten"
+msgid "Passwords must have at least one number."
+msgstr "Wachtwoorden moeten minimaal één cijfer bevatten."
 
 #: password_strength.py:106
 #, python-brace-format
-msgid "Passwords must have at least {min_count} numbers"
-msgstr "Wachtwoorden moeten minimaal {min_count} cijfers bevatten"
+msgid "Passwords must have at least {min_count} numbers."
+msgstr "Wachtwoorden moeten minimaal {min_count} cijfers bevatten."
 
 #: password_strength.py:112
-msgid "Passwords must have at least one special character (punctuation)"
-msgstr "Wachtwoorden moeten minimaal één speciaal teken (leesteken) bevatten"
+msgid "Passwords must have at least one special character (punctuation)."
+msgstr "Wachtwoorden moeten minimaal één speciaal teken (leesteken) bevatten."
 
 #: password_strength.py:113
 #, python-brace-format
 msgid ""
-"Passwords must have at least {min_count} special characters (punctuation)"
+"Passwords must have at least {min_count} special characters (punctuation)."
 msgstr ""
 "Wachtwoorden moeten minimaal {min_count} speciale tekens (leestekens) "
-"bevatten"
+"bevatten."
 
 #: password_strength.py:119
-msgid "Passwords must have at least one alphabetic character"
-msgstr "Wachtwoorden moeten minimaal één letter bevatten"
+msgid "Passwords must have at least one alphabetic character."
+msgstr "Wachtwoorden moeten minimaal één letter bevatten."
 
 #: password_strength.py:120
 #, python-brace-format
-msgid "Passwords must have at least {min_count} alphabetic characters"
-msgstr "Wachtwoorden moeten minimaal {min_count} letters bevatten"
+msgid "Passwords must have at least {min_count} alphabetic characters."
+msgstr "Wachtwoorden moeten minimaal {min_count} letters bevatten."
 
 #: password_strength.py:140
 msgid "Passwords are not allowed to contain (pieces of) your name or email."
@@ -234,8 +233,8 @@ msgstr ""
 
 #: password_strength.py:174
 #, python-brace-format
-msgid "Passwords are not allowed to contain the following term(s): {terms}"
-msgstr "Wachtwoorden mogen niet de volgende term(en) bevatten: {terms}"
+msgid "Passwords are not allowed to contain the following term(s): {terms}."
+msgstr "Wachtwoorden mogen niet de volgende term(en) bevatten: {terms}."
 
 #: user_admin.py:28
 #: templates/admin/django_auth_policy/set_temporary_password.html:19
