@@ -8,10 +8,13 @@ import collections
 from cStringIO import StringIO
 
 from django.test import TestCase, RequestFactory
+from django.test.utils import override_settings
 from django.contrib.auth import get_user_model, SESSION_KEY
+from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.conf import settings
 
 from django_auth_policy.models import LoginAttempt, PasswordChange
 from django_auth_policy.forms import (StrictAuthenticationForm,
@@ -30,6 +33,7 @@ from django_auth_policy.password_strength import (PasswordMinLength,
                                                   PasswordContainsSymbols,
                                                   PasswordUserAttrs,
                                                   PasswordDisallowedTerms)
+from django_auth_policy.middleware import LoginRequiredMiddleware
 
 
 class LoginTests(TestCase):
@@ -617,3 +621,77 @@ class PasswordStrengthTests(TestCase):
             loginattempt,
             'secret'
         )
+
+
+class LoginRequiredMiddlewareTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='rf',
+            email='rf@example.rf',
+            password='password')
+
+        self.factory = RequestFactory()
+
+    def test_login_required(self):
+        mw = LoginRequiredMiddleware()
+
+        # Authenticated request:
+        req = self.factory.get(reverse('another_view'))
+        req.user = self.user
+        self.assertEqual(mw.process_request(req), None)
+
+        # Unauthenticated request:
+        req = self.factory.get(reverse('another_view'))
+        req.user = AnonymousUser()
+        resp = mw.process_request(req)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'id_username')
+        self.assertContains(resp, 'id_password')
+
+    def test_ajax(self):
+        mw = LoginRequiredMiddleware()
+
+        # Authenticated request:
+        req = self.factory.get(reverse('another_view'))
+        req.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        req.user = self.user
+        self.assertEqual(mw.process_request(req), None)
+
+        # Unauthenticated request:
+        req = self.factory.get(reverse('another_view'))
+        req.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        req.user = AnonymousUser()
+        resp = mw.process_request(req)
+        self.assertEqual(resp.status_code, 401)
+
+    def test_statics(self):
+        mw = LoginRequiredMiddleware()
+
+        # Unauthenticated request that should have been handled by web server:
+        req = self.factory.get(settings.STATIC_URL + 'logo.png')
+        req.user = AnonymousUser()
+        resp = mw.process_request(req)
+        self.assertEqual(resp.status_code, 401)
+
+        # Unauthenticated request that should have been handled by web server:
+        req = self.factory.get(settings.MEDIA_URL + 'logo.png')
+        req.user = AnonymousUser()
+        resp = mw.process_request(req)
+        self.assertEqual(resp.status_code, 401)
+
+    @override_settings(DEBUG=True)
+    def test_statics_debug(self):
+        # Statics can be served in DEBUG mode though:
+        mw = LoginRequiredMiddleware()
+
+        # Unauthenticated request that should have been handled by web server:
+        req = self.factory.get(settings.STATIC_URL + 'logo.png')
+        req.user = AnonymousUser()
+        resp = mw.process_request(req)
+        self.assertEqual(resp, None)
+
+        # Unauthenticated request that should have been handled by web server:
+        req = self.factory.get(settings.MEDIA_URL + 'logo.png')
+        req.user = AnonymousUser()
+        resp = mw.process_request(req)
+        self.assertEqual(resp, None)

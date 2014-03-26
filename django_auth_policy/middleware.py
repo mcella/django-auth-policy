@@ -117,21 +117,30 @@ class LoginRequiredMiddleware(object):
             return None
 
         # Django should not serve STATIC files in production, but for
-        # development this should be no problem
+        # DEBUG mode this should be no problem (development)
         if (settings.STATIC_URL and
-                request.path.startswith(settings.STATIC_URL)):
+            request.path.startswith(settings.STATIC_URL)):
 
             if settings.DEBUG:
                 return None
             else:
-                return http.HttpResponseForbidden('Login required')
+                return http.HttpResponse('Unauthenticated', status=401)
 
         # When serving MEDIA files through Django we will not display a login
-        # form, but instead return HTTP 403 Forbidden
+        # form, but instead return HTTP 401, but for DEBUG mode this should be
+        # no problem (development)
         if (settings.MEDIA_URL and
-                request.path.startswith(settings.MEDIA_URL)):
+            request.path.startswith(settings.MEDIA_URL)):
 
-            return http.HttpResponseForbidden('Login required')
+            if settings.DEBUG:
+                return None
+            else:
+                return http.HttpResponse('Unauthenticated', status=401)
+
+        # Ajax views should not display a login form, we use HTTP 401 to
+        # indicate an unauthorized request, like a session timeout
+        if request.is_ajax():
+            return http.HttpResponse('Unauthenticated', status=401)
 
         view_func, args, kwargs = resolve(self.login_path)
         return requires_csrf_token(view_func)(request, *args, **kwargs)

@@ -56,5 +56,10 @@ IDEAS / TODOS
 * Only allow certain usernames at login (list of possible regex-es)
   Could be used to enforce usernames to end with company domainname.
 
-* Middleware should not return login view / password change view for AJAX
-  requests, but should return HTTP Forbidden
+* Add password strength checker which uses unicodedata.category
+  http://www.unicode.org/reports/tr44/tr44-4.html#General_Category_Values
+
+* Implement a LoginViewRequired middleware just like CsrfViewMiddleware with a
+  login_required_exempt decorator
+  Does this expose which URLs are available on a site (because it returns 404
+  or login screens depending of existence of URL resource)

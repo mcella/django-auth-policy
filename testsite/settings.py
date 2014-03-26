@@ -34,8 +34,8 @@ LOGIN_REDIRECT_URL = '/'
 
 ROOT_URLCONF = 'testsite.urls'
 
-# Required for Django 1.4+
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 
 # Required for Django 1.5+
 SECRET_KEY = 'abc123'
