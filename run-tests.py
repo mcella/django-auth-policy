@@ -9,5 +9,5 @@ if __name__ == "__main__":
 
     from django.core import management
 
-    management.call_command('test', 'django_auth_policy', verbosity=1,
+    management.call_command('test', 'testsite.tests', verbosity=1,
                             interactive=False)
