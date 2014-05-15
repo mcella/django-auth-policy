@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 install_requires = ['Django>=1.5']
@@ -9,10 +9,9 @@ try:
 except ImportError:
     install_requires.append('ordereddict>=1.1')
 
-
 setup(
     name='django-auth-policy',
-    version='0.9.4',
+    version='0.9.5',
     zip_safe=False,
     description='Enforces a couple of common authentication policies for the '
                 'Django web framework.',
@@ -22,7 +21,7 @@ setup(
     maintainer_email='rudolphfroger@estrate.nl',
     url='https://github.com/rudolphfroger/django-auth-policy',
     license='BSD',
-    packages=['django_auth_policy'],
+    packages=find_packages(exclude=["testsite", "testsite.*", "*.tests", "*.tests.*", "tests.*", "tests"]),
     package_data={'django_auth_policy': ['locale/*/LC_MESSAGES/*.mo',
                                          'locale/*/LC_MESSAGES/*.po']},
     install_requires=install_requires,
