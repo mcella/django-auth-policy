@@ -93,7 +93,7 @@ class AuthenticationDisableExpiredUsers(AuthenticationPolicy):
                                                   last_login__lt=expire_at)
 
         for user in expired:
-            logger.info('User %s disabled because last login was at %s',
+            logger.info(u'User %s disabled because last login was at %s',
                         unicode(user), user.last_login)
             # Send signal to be used to alert admins
             signals.user_expired.send(sender=user, user=user)
@@ -104,15 +104,15 @@ class AuthenticationDisableExpiredUsers(AuthenticationPolicy):
 def _format_lockduration(seconds):
     duration = datetime.timedelta(seconds=seconds)
     if duration.days > 1:
-        return _('{days} days').format(days=duration.days)
+        return _(u'{days} days').format(days=duration.days)
     elif duration.days == 1:
-        return _('a day')
+        return _(u'a day')
     elif duration.seconds >= 120:
-        return _('{mins} minutes').format(mins=duration.seconds // 60)
+        return _(u'{mins} minutes').format(mins=duration.seconds // 60)
     elif duration.seconds >= 60:
-        return _('a minute')
+        return _(u'a minute')
     else:
-        return _('{secs} seconds').format(secs=duration.seconds)
+        return _(u'{secs} seconds').format(secs=duration.seconds)
 
 
 class AuthenticationLockedUsername(AuthenticationPolicy):
@@ -127,7 +127,7 @@ class AuthenticationLockedUsername(AuthenticationPolicy):
     # Lockout duration in seconds
     lockout_duration = 60 * 10
     # Validation error
-    text = _('Too many failed login attempts. Your account has been locked '
+    text = _(u'Too many failed login attempts. Your account has been locked '
              'for {duration}.')
 
     def pre_auth_check(self, loginattempt, password):
@@ -191,7 +191,7 @@ class AuthenticationLockedRemoteAddress(AuthenticationPolicy):
     # Lockout duration in seconds
     lockout_duration = 60 * 10
     # Validation error
-    text = _('Too many failed login attempts. Your account has been locked '
+    text = _(u'Too many failed login attempts. Your account has been locked '
              'for {duration}.')
 
     def pre_auth_check(self, loginattempt, password):
@@ -252,7 +252,7 @@ class AuthenticationUsernameWhitelist(AuthenticationPolicy):
     # Regexes
     whitelist = []
     _whitelist_regex = []
-    text = _("Please enter a correct username and password. "
+    text = _(u"Please enter a correct username and password. "
              "Note that both fields may be case-sensitive.")
 
     def pre_auth_check(self, loginattempt, password):
@@ -262,7 +262,7 @@ class AuthenticationUsernameWhitelist(AuthenticationPolicy):
 
         for regex in self._whitelist_regex:
             if regex.search(loginattempt.username):
-                logger.debug('Username matched whitelisted pattern %s',
+                logger.debug(u'Username matched whitelisted pattern %s',
                              regex.pattern)
                 return
 
