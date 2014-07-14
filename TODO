@@ -10,7 +10,7 @@ IDEAS / TODOS
 
 * Add example on how to send temporary passwords by email
 
-* Add tests for Django admin code
+* Add tests for Django admin code?
 
 * Add tests for UserChange tracking
 
@@ -24,6 +24,10 @@ IDEAS / TODOS
 
 * Optionally use different source of random data for temporary password
   generation
+
+* Allow projects to use customized temporary password generator
+
+* Allow temporary passwords to expire?
 
 * Optionally check password complexity at login and enforce new password
   for weak passwords
@@ -42,12 +46,10 @@ IDEAS / TODOS
 
 * Add password hasher for bcrypt/scrypt/PDKDF2 which stores nonce/salt
   seperately (not in the database) but still accessible by all web processes
+  Also pepper the hash with Django SECRET_KEY + some fixed string
 
 * Use sensitive_variables and sensitive_post_parameters to hide passwords from
   Django error reports
-
-* Optionally forbid/logout users when certain headers change (USER_AGENT,
-  REMOTE_ADDR, X_FORWARDED_FOR) Also log this.
 
 * Only login from whitelisted IP addresses/ranges.
   Or provide example which limits admin/superuser login
@@ -59,7 +61,37 @@ IDEAS / TODOS
 * Add password strength checker which uses unicodedata.category
   http://www.unicode.org/reports/tr44/tr44-4.html#General_Category_Values
 
-* Implement a LoginViewRequired middleware just like CsrfViewMiddleware with a
-  login_required_exempt decorator
-  Does this expose which URLs are available on a site (because it returns 404
+* Optionally forbid/logout users when certain headers change (USER_AGENT,
+  REMOTE_ADDR, X_FORWARDED_FOR) Also log this.
+
+* Optionally store hash of password in session and logoff user when hash changes
+  (i.e. user changed password)
+
+* Implement a login_required_exempt decorator
+  (which sets an attribute on the specified view)
+
+* LoginRequiredMiddleware could catch 404's and return login page to avoud
+  exposing which URLs are available on a site (because it returns 404
   or login screens depending of existence of URL resource)
+
+* Allow regex expressions for LoginRequiredMiddleware
+
+Backward incompatible changes for Django Auth Policy 0.10:
+
+* Move forms into documentation examples and tests?
+  This stimulates projects to use the Django Auth Policy API directly 
+
+* pre_auth_checks: Change this function and underlying policies to accept a
+  `credentials` dictionary and a HTTP `headers` dictionary.
+
+* Authentication policy handler method `post_auth_checks` should not run
+  `auth_success`
+
+* Store all HTTP headers with login attempt
+
+* Do not store ForeignKey to user but a representation of the user PK + ':' + unicode representation
+
+Far future ideas:
+
+* Remove Django dependency from main code and add special module/package for
+  Django integration. Add examples for Flask / WTForms???
