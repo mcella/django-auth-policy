@@ -1,7 +1,7 @@
 import logging
 
 from django import http
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib import admin
 from django.contrib.auth.views import password_change

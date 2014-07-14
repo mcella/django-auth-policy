@@ -6,7 +6,7 @@ except ImportError:
     from ordereddict import OrderedDict
 
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -38,14 +38,27 @@ class StrictAuthenticationForm(AuthenticationForm):
         attempt = self.auth_policy.pre_auth_checks(username, password,
                                                    remote_addr, host)
 
-        self.user_cache = authenticate(username=username, password=password)
-        attempt.user = self.user_cache
+        if username and password:
+            self.user_cache = authenticate(username=username, password=password)
+            if self.user_cache is None:
+                logger.info(u'Authentication failure, username=%s, '
+                            'address=%s, invalid authentication.',
+                            attempt.username, attempt.source_address)
+                raise forms.ValidationError(
+                        self.error_messages['invalid_login'],
+                        code='invalid_login',
+                        params={'username': self.username_field.verbose_name},
+                        )
+            else:
+                attempt.user = self.user_cache
+                attempt.save(update_fields=['user'])
 
-        attempt = self.auth_policy.post_auth_checks(attempt,
-                skip_auth_success=True)
-        attempt = self.auth_policy.auth_success(attempt)
+                attempt = self.auth_policy.post_auth_checks(attempt,
+                        skip_auth_success=True)
+                attempt = self.auth_policy.auth_success(attempt)
 
-        self.password_change_policy.update_session(self.request, self.user_cache)
+                self.password_change_policy.update_session(self.request,
+                        self.user_cache)
 
         return self.cleaned_data
 

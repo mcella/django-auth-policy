@@ -79,7 +79,9 @@ IDEAS / TODOS
 Backward incompatible changes for Django Auth Policy 0.10:
 
 * Move forms into documentation examples and tests?
-  This stimulates projects to use the Django Auth Policy API directly 
+  Create a function that can be called within an authentications' clean method.
+  This stimulates projects to implement Django Auth Policy correctly in project
+  specific forms.
 
 * pre_auth_checks: Change this function and underlying policies to accept a
   `credentials` dictionary and a HTTP `headers` dictionary.

@@ -32,6 +32,8 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 LOGIN_REDIRECT_URL = '/'
 
+WSGI_APPLICATION = 'testsite.wsgi.application'
+
 ROOT_URLCONF = 'testsite.urls'
 
 STATIC_URL = '/static/'

@@ -6,7 +6,7 @@ from django import http
 from django.conf.urls import patterns, url
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
