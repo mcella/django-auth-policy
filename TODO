@@ -78,8 +78,14 @@ IDEAS / TODOS
 
 Backward incompatible changes for Django Auth Policy 0.10:
 
+* Store authentication backend in attempt, i.e.:
+
+	user = authenticate(username=u, password=p)
+	if user is not None:
+		attempt.backend = user.backend
+
 * Move forms into documentation examples and tests?
-  Create a function that can be called within an authentications' clean method.
+  Create a function that can be called within an form clean method.
   This stimulates projects to implement Django Auth Policy correctly in project
   specific forms.
 
@@ -89,9 +95,11 @@ Backward incompatible changes for Django Auth Policy 0.10:
 * Authentication policy handler method `post_auth_checks` should not run
   `auth_success`
 
-* Store all HTTP headers with login attempt
+* Store all HTTP headers JSON encoded with login attempt, in addition to
+  current fields
 
-* Do not store ForeignKey to user but a representation of the user PK + ':' + unicode representation
+* Store a representation of the user with every attempt, in addtion to FG to
+  user. Make FK field nullable and set on_delete to NULL the field.
 
 Far future ideas:
 
