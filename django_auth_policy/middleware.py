@@ -7,6 +7,7 @@ from django import http
 
 from django_auth_policy.handlers import PasswordChangePolicyHandler
 from django_auth_policy.forms import StrictPasswordChangeForm
+from django_auth_policy.password_change import update_password, password_changed
 
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,9 @@ class AuthenticationPolicyMiddleware(object):
     login_path = reverse(getattr(settings, 'LOGIN_VIEW_NAME', 'login'))
     logout_path = reverse(getattr(settings, 'LOGOUT_VIEW_NAME', 'logout'))
 
+    logout_after_password_change = getattr(settings,
+            'LOGOUT_AFTER_PASSWORD_CHANGE', True)
+
     password_change_policy_handler = PasswordChangePolicyHandler()
 
     def process_request(self, request):
@@ -35,14 +39,23 @@ class AuthenticationPolicyMiddleware(object):
             'request, add AuthenticationMiddleware before '
             'AuthenticationPolicyMiddleware in MIDDLEWARE_CLASSES')
 
+        # This middleware does nothing for unauthenticated users
         if not request.user.is_authenticated():
             return None
+
+        # Check if users' password has been changed, and then logout user.
+        # To prevent logout at password change views call the
+        # `update_password` function
+        if self.logout_after_password_change and request.user.has_usable_password():
+            if not 'password_hash' in request.session:
+                update_password(request)
+            elif password_changed(request):
+                return self.logout(request)
 
         # Log out disabled users
         if not request.user.is_active:
             logger.info('Log out inactive user, user=%s', request.user)
-            view_func, args, kwargs = resolve(self.logout_path)
-            return view_func(request, *args, **kwargs)
+            return self.logout(request)
 
         # Do not do password change for certain URLs
         if request.path in (self.change_password_path, self.login_path,
@@ -93,6 +106,10 @@ class AuthenticationPolicyMiddleware(object):
         # Run 'requires_csrf_token' because CSRF middleware might have been
         # skipped over here
         return requires_csrf_token(view_func)(request, *args, **kwargs)
+
+    def logout(self, request):
+        view_func, args, kwargs = resolve(self.logout_path)
+        return view_func(request, *args, **kwargs)
 
 
 class LoginRequiredMiddleware(object):

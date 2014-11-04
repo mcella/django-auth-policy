@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
@@ -51,3 +52,18 @@ class PasswordChangeTemporary(PasswordChangePolicy):
     def validate(self, last_pw_change):
         if last_pw_change is not None and last_pw_change.is_temporary:
             raise ValidationError(self.text, code='password-temporary')
+
+
+def update_password(request):
+    """ Store hashed version of users' password hash in the current session
+    """
+    hd = hashlib.sha256('pwch' + request.user.password).hexdigest()
+    request.session['password_hash'] = hd
+
+
+def password_changed(request):
+    """ Check if password changed during session, without updating the password
+    stored in the session.
+    """
+    hd = hashlib.sha256('pwch' + request.user.password).hexdigest()
+    return request.session.get('password_hash', '') == hd
