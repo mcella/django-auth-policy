@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 
-install_requires = ['Django>=1.5']
+install_requires = ['Django>=1.6']
 try:
     from collections import OrderedDict
 except ImportError:
