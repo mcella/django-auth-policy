@@ -54,16 +54,26 @@ class PasswordChangeTemporary(PasswordChangePolicy):
             raise ValidationError(self.text, code='password-temporary')
 
 
-def update_password(request):
+def update_password(session, user):
     """ Store hashed version of users' password hash in the current session
     """
-    hd = hashlib.sha256('pwch' + request.user.password).hexdigest()
-    request.session['password_hash'] = hd
+    hd = hashlib.sha256('pwch' + user.password).hexdigest()
+    session['password_hash'] = hd
 
 
-def password_changed(request):
+def password_changed(session, user):
     """ Check if password changed during session, without updating the password
     stored in the session.
     """
-    hd = hashlib.sha256('pwch' + request.user.password).hexdigest()
-    return request.session.get('password_hash', '') == hd
+    if not user.is_authenticated():
+        return False
+
+    if not user.has_usable_password():
+        return False
+
+    if not 'password_hash' in session:
+        update_password(session, user)
+        return False
+
+    hd = hashlib.sha256('pwch' + user.password).hexdigest()
+    return session.get('password_hash', '') != hd

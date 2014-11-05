@@ -9,8 +9,10 @@ from django_auth_policy.handlers import PasswordChangePolicyHandler
 from django_auth_policy.forms import StrictPasswordChangeForm
 from django_auth_policy.password_change import update_password, password_changed
 
-
 logger = logging.getLogger(__name__)
+
+LOGOUT_AFTER_PASSWORD_CHANGE = getattr(settings,
+        'LOGOUT_AFTER_PASSWORD_CHANGE', True)
 
 
 class AuthenticationPolicyMiddleware(object):
@@ -28,9 +30,6 @@ class AuthenticationPolicyMiddleware(object):
     login_path = reverse(getattr(settings, 'LOGIN_VIEW_NAME', 'login'))
     logout_path = reverse(getattr(settings, 'LOGOUT_VIEW_NAME', 'logout'))
 
-    logout_after_password_change = getattr(settings,
-            'LOGOUT_AFTER_PASSWORD_CHANGE', True)
-
     password_change_policy_handler = PasswordChangePolicyHandler()
 
     def process_request(self, request):
@@ -45,12 +44,9 @@ class AuthenticationPolicyMiddleware(object):
 
         # Check if users' password has been changed, and then logout user.
         # To prevent logout at password change views call the
-        # `update_password` function
-        if self.logout_after_password_change and request.user.has_usable_password():
-            if not 'password_hash' in request.session:
-                update_password(request)
-            elif password_changed(request):
-                return self.logout(request)
+        # `update_password` function in that view
+        if not 'password_hash' in request.session:
+            update_password(request.session, request.user)
 
         # Log out disabled users
         if not request.user.is_active:
@@ -76,6 +72,18 @@ class AuthenticationPolicyMiddleware(object):
         # for next request
         if not request.session.get('password_change_enforce', False):
             return response
+
+        # Check if users' password has been changed, and then logout user.
+        # To prevent logout at password change views call the
+        # `update_password` function in that view
+        # Ignore non 2xx responses (e.g. redirects).
+        if (response.status_code >= 200 and
+                response.status_code < 300 and
+                LOGOUT_AFTER_PASSWORD_CHANGE and
+                password_changed(request.session, request.user)):
+
+                logger.info('Logout session because user changed its password')
+                return self.logout(request)
 
         self.password_change_policy_handler.update_session(
             request, request.user)
