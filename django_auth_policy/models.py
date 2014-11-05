@@ -42,15 +42,20 @@ class LoginAttemptManager(models.Manager):
 
 
 class LoginAttempt(models.Model):
+    # Username tried to log in
     username = models.CharField(_('username'), max_length=100, db_index=True)
     source_address = models.GenericIPAddressField(
         _('source address'), protocol='both', db_index=True)
     hostname = models.CharField(_('hostname'), max_length=100)
     successful = models.BooleanField(_('successful'), default=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True,
-                             verbose_name=_('user'), on_delete=models.PROTECT)
     timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True,
                                      default=timezone.now, db_index=True)
+    # User fields are only filled at successful login attempts:
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+            verbose_name=_('user'), blank=True, null=True,
+            on_delete=models.SET_NULL)
+    user_repr = models.CharField(_('user'), blank=True,
+            max_length=200)
     # This is enabled for all failed login attempts. It is reset for every
     # successful login and can be reset by 'user admins'.
     lockout = models.BooleanField(_('lockout'), default=True,
@@ -65,6 +70,13 @@ class LoginAttempt(models.Model):
         permissions = (
             ('unlock', _('Unlock by username or IP address')),
             )
+
+    def save(self, *args, **kwargs):
+        if self.user_id is not None and not self.user_repr:
+            self.user_repr = self.user.get_username()[:200] or 'NO USERNAME'
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('user_repr')
+        super(LoginAttempt, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'{0} at {1} from {2}'.format(self.username,
@@ -95,8 +107,10 @@ class PasswordChangeAdmin(models.Manager):
 
 
 class PasswordChange(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
-                             on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+            verbose_name=_('user'), blank=True, null=True,
+            on_delete=models.SET_NULL)
+    user_repr = models.CharField(_('user'), max_length=200)
     timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True,
                                      default=timezone.now)
     successful = models.BooleanField(_('successful'), default=False)
@@ -115,23 +129,48 @@ class PasswordChange(models.Model):
         verbose_name_plural = _('password changes')
         ordering = ('-id',)
 
+    def save(self, *args, **kwargs):
+        if self.user_id is not None and not self.user_repr:
+            self.user_repr = self.user.get_username()[:200] or 'NO USERNAME'
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('user_repr')
+        super(PasswordChange, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return u'{0} at {1}'.format(self.user, self.timestamp)
 
 
 class UserChange(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
-                             on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+            verbose_name=_('user'), blank=True, null=True,
+            on_delete=models.SET_NULL)
+    user_repr = models.CharField(_('user'), max_length=200)
     timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True)
     by_user = models.ForeignKey(settings.AUTH_USER_MODEL,
                                 verbose_name=_('by user'),
                                 related_name='changed_users',
-                                on_delete=models.PROTECT)
+                                blank=True, null=True,
+                                on_delete=models.SET_NULL)
+    by_user_repr = models.CharField(_('by user'), max_length=200)
 
     class Meta:
         verbose_name = _('user change')
         verbose_name_plural = _('user changes')
         ordering = ('-id',)
+
+    def save(self, *args, **kwargs):
+        if self.user_id is not None and not self.user_repr:
+            self.user_repr = self.user.get_username()[:200] or 'NO USERNAME'
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('user_repr')
+
+        if self.by_user_id is not None and not self.by_user_repr:
+            self.by_user_repr = (self.by_user.get_username()[:200] or
+                    'NO USERNAME')
+            if kwargs.get('update_fields'):
+                kwargs['update_fields'].append('by_user_repr')
+
+        super(UserChange, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'{0} at {1} by {1}'.format(self.user, self.timestamp,

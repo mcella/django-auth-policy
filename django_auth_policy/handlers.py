@@ -5,7 +5,7 @@ from django.utils.module_loading import import_by_path
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
-from django_auth_policy.models import (LoginAttempt, PasswordChange)
+from django_auth_policy.models import LoginAttempt, PasswordChange
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +71,8 @@ class PasswordChangePolicyHandler(object):
             pol.validate(last_pw_change)
 
     def update_session(self, request, user):
+        """ Called directly after successful authentication
+        """
         if not hasattr(request, 'session'):
             return
 
