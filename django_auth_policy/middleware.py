@@ -70,8 +70,9 @@ class AuthenticationPolicyMiddleware(object):
 
         # When password change is enforced, check if this is still required
         # for next request
-        if not request.session.get('password_change_enforce', False):
-            return response
+        if request.session.get('password_change_enforce', False):
+            self.password_change_policy_handler.update_session(
+                request, request.user)
 
         # Check if users' password has been changed, and then logout user.
         # To prevent logout at password change views call the
@@ -82,11 +83,8 @@ class AuthenticationPolicyMiddleware(object):
                 LOGOUT_AFTER_PASSWORD_CHANGE and
                 password_changed(request.session, request.user)):
 
-                logger.info('Logout session because user changed its password')
-                return self.logout(request)
-
-        self.password_change_policy_handler.update_session(
-            request, request.user)
+            logger.info('Logout session because user changed its password')
+            return self.logout(request)
 
         return response
 
@@ -113,7 +111,9 @@ class AuthenticationPolicyMiddleware(object):
 
         # Run 'requires_csrf_token' because CSRF middleware might have been
         # skipped over here
-        return requires_csrf_token(view_func)(request, *args, **kwargs)
+        resp = requires_csrf_token(view_func)(request, *args, **kwargs)
+        update_password(request.session, request.user)
+        return resp
 
     def logout(self, request):
         view_func, args, kwargs = resolve(self.logout_path)
