@@ -1,8 +1,44 @@
-IDEAS / TODOS
-=============
+IDEAS / TODO'S
+==============
 
-* Optionally keep a limited history of passwords (hashed) to prevent password
-  reuse, password model field has been added.
+Release 1.0
+-----------
+
+* Optionally store hash of password in session and log-off user when hash
+  changes (i.e. user changed password)
+
+* Only login from whitelisted IP addresses/ranges.
+  Or provide example which limits admin/superuser login
+  to certain IP addresses by sending the REMOTE_ADDR to authentication backend.
+
+* pre_auth_checks: Change this function and underlying policies to accept a
+  `credentials` dictionary and a HTTP `headers` dictionary.
+
+  If this can't be done keeping backwards compatibility then move this to 2.0
+
+* Authentication policy handler method `post_auth_checks` should not run
+  `auth_success`
+
+* Optionally prevent usage of passwords (plains) from a list of common passwords
+  
+  Supply a publicly available list with django_auth_policy?
+
+  Filter this list based on the other policy rules.
+
+  Optionally also allow lists of forbidden hashed passwords,
+  for possibly sensitive passwords. This list should not be too long.
+
+* Implement a login_required_exempt decorator which works together with the
+  login required middleware.
+  (which sets an attribute on the specified view)
+
+* LoginRequiredMiddleware could catch 404's and return login page to avoid
+  exposing which URLs are available on a site (because it returns 404
+  or login screens depending of existence of URL resource)
+
+* Allow regex expressions for LoginRequiredMiddleware
+
+* Add unit tests for logout after password change
 
 * Expand docs
 
@@ -14,13 +50,10 @@ IDEAS / TODOS
 
 * Add tests for UserChange tracking
 
+Release 1.1
+-----------
+
 * Add more signals as hooks for additional functionality
-
-* Optionally prevent usage of passwords from a list of common passwords
-  
-  Supply a publicly available list with django_auth_policy?
-
-  Filter this list based on the other policy rules.
 
 * Optionally use different source of random data for temporary password
   generation
@@ -51,32 +84,18 @@ IDEAS / TODOS
 * Use sensitive_variables and sensitive_post_parameters to hide passwords from
   Django error reports
 
-* Only login from whitelisted IP addresses/ranges.
-  Or provide example which limits admin/superuser login
-  to certain IP addresses by sending the REMOTE_ADDR to authentication backend.
-
-* Only allow certain usernames at login (list of possible regex-es)
-  Could be used to enforce usernames to end with company domainname.
-
 * Add password strength checker which uses unicodedata.category
   http://www.unicode.org/reports/tr44/tr44-4.html#General_Category_Values
 
-* Optionally forbid/logout users when certain headers change (USER_AGENT,
+* Optionally forbid/alarm/logout users when certain headers change (USER_AGENT,
   REMOTE_ADDR, X_FORWARDED_FOR) Also log this.
 
-* Optionally store hash of password in session and logoff user when hash changes
-  (i.e. user changed password)
+* Optionally keep a limited history of passwords (hashed) to prevent password
+  reuse, password model field has been added.
 
-* Implement a login_required_exempt decorator
-  (which sets an attribute on the specified view)
 
-* LoginRequiredMiddleware could catch 404's and return login page to avoud
-  exposing which URLs are available on a site (because it returns 404
-  or login screens depending of existence of URL resource)
-
-* Allow regex expressions for LoginRequiredMiddleware
-
-Backward incompatible changes for Django Auth Policy 0.10:
+Release 2.0
+-----------
 
 * Store authentication backend in attempt, i.e.:
 
@@ -89,19 +108,11 @@ Backward incompatible changes for Django Auth Policy 0.10:
   This stimulates projects to implement Django Auth Policy correctly in project
   specific forms.
 
-* pre_auth_checks: Change this function and underlying policies to accept a
-  `credentials` dictionary and a HTTP `headers` dictionary.
-
-* Authentication policy handler method `post_auth_checks` should not run
-  `auth_success`
-
 * Store all HTTP headers JSON encoded with login attempt, in addition to
   current fields
 
 * Store a representation of the user with every attempt, in addtion to FG to
   user. Make FK field nullable and set on_delete to NULL the field.
-
-Far future ideas:
 
 * Remove Django dependency from main code and add special module/package for
   Django integration. Add examples for Flask / WTForms???
