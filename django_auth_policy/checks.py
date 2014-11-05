@@ -13,7 +13,7 @@ from django_auth_policy.forms import (StrictAuthenticationForm,
 user_model = get_user_model()
 
 
-@checks.register()
+@checks.register('authpolicy')
 def check_middleware(app_configs, **kwargs):
     errors = []
     middle = 'django_auth_policy.middleware.AuthenticationPolicyMiddleware'
@@ -28,10 +28,10 @@ def check_middleware(app_configs, **kwargs):
                 ))
 
     if not d_middle in m_classes:
-        errors.append(checks.Warning(
+        errors.append(checks.Info(
                 msg=('Djangos AuthenticationMiddleware is missing'),
                 hint=('Add {} to MIDDLEWARE_CLASSES'.format(d_middle)),
-                id='django_auth_policy.W001',
+                id='django_auth_policy.I003',
                 ))
 
     if not errors and m_classes.index(d_middle) > m_classes.index(middle):
@@ -45,7 +45,7 @@ def check_middleware(app_configs, **kwargs):
     return errors
 
 
-@checks.register()
+@checks.register('authpolicy')
 def check_views(app_configs, **kwargs):
     errors = []
     # Check login view
