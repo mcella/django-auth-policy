@@ -40,7 +40,7 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 # Required for Django 1.5+
-SECRET_KEY = 'abc123'
+SECRET_KEY = 'Mah2eil9uiMeiYiePum2ich4ZaeL4pahNguoBeGhoo6jeeneeZ'
 
 # Use test templates
 TEMPLATE_DIRS = (
@@ -73,7 +73,7 @@ PASSWORD_CHANGE_POLICIES = (
 # Required for testing log output
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -84,9 +84,14 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'django.utils.log.NullHandler',
         },
+        # This handler is used to buffer log messages and unittest their content
         'testing': {
             'level': 'DEBUG',
-            #'class': 'django_auth_policy.tests_logger.TestLoggingHandler',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'console': {
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         }
@@ -102,6 +107,8 @@ LOGGING = {
             'level': 'INFO',
         },
         'django_auth_policy': {
+            # This first handler must be the testing handler
+            # One may add the console handler to view messages during testing
             'handlers': ['testing'],
             'propagate': False,
             'level': 'DEBUG',
