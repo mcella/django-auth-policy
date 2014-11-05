@@ -7,20 +7,23 @@ from django.conf import settings
 
 
 def fill_repr(apps, schema_editor):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
     LoginAttempt = apps.get_model("django_auth_policy", "LoginAttempt")
-    for item in LoginAttempt.objects.all():
-        item.user_repr = item.user.get_username()
+    for item in LoginAttempt.objects.filter(user__isnull=False):
+        item.user_repr = getattr(item.user, User.USERNAME_FIELD)
         item.save(update_fields=['user_repr'])
 
     PasswordChange = apps.get_model("django_auth_policy", "PasswordChange")
     for item in PasswordChange.objects.all():
-        item.user_repr = item.user.get_username()
+        item.user_repr = getattr(item.user, User.USERNAME_FIELD)
         item.save(update_fields=['user_repr'])
 
     UserChange = apps.get_model("django_auth_policy", "UserChange")
     for item in UserChange.objects.all():
-        item.user_repr = item.user.get_username()
-        item.by_user_repr = item.by_user.get_username()
+        item.user_repr = getattr(item.user, User.USERNAME_FIELD)
+        item.by_user_repr = getattr(item.by_user, User.USERNAME_FIELD)
         item.save(update_fields=['user_repr', 'by_user_repr'])
 
 
