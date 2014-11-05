@@ -11,7 +11,7 @@ except ImportError:
 
 setup(
     name='django-auth-policy',
-    version='0.9.6',
+    version='0.9.7',
     zip_safe=False,
     description='Enforces a couple of common authentication policies for the '
                 'Django web framework.',
