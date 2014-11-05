@@ -4,10 +4,8 @@
 Django Auth Policy
 ==================
 
-Installation instructions
-=========================
-
-Follow these steps to install ``django_auth_policy``:
+Quick setup
+===========
 
 * Install ``django_auth_policy`` using pip, easy_install or the
   provided setup.py.
@@ -15,12 +13,13 @@ Follow these steps to install ``django_auth_policy``:
 * Add ``django_auth_policy`` to Django setting ``INSTALLED_APPS``.
 
 * Add ``django_auth_policy.middleware.AuthenticationPolicyMiddleware`` to the
-  Django setting ``MIDDLEWARE_CLASSES``, make sure to include it *after* the
-  ``AuthenticationMiddleware``.
+  Django setting ``MIDDLEWARE_CLASSES``, make sure to include it *after*
+  Django's ``AuthenticationMiddleware``.
 
 * Use the authentication form and the change password forms from
-  ``django_auth_policy.forms``. For inspiration on how to use these forms
-  have a look at ``django_auth_forms.urls.py``.
+  ``django_auth_policy.forms``.
+
+.. FIXME: Full example of log-in, log-out and change password views
 
 * Add policies to your settings, a good starting point can be::
 
@@ -49,11 +48,29 @@ Follow these steps to install ``django_auth_policy``:
     )
 
   Update the ``terms`` of ``PasswordDisallowedTerms`` to a list of terms one
-  does not allow in passwords. Like the name and domainname of the site.
+  does not allow in passwords. Like the name and domainname of the current site.
 
-  Check the source code of the policies to see which settings are available per
-  policy (like the ``terms`` of the ``PasswordDisallowedTerms``).
+.. FIXME: Add references to explanation of individual policies
 
-* Run the ``./manage.py check_auth_policy`` command as a sanity check if
-  everything is in place. This command is **NO guarantee** since it\'s easy
-  for developers to work around the checks performed by this command.
+* For Django >= 1.7 run the ``./manage.py check`` command as a sanity check to
+  see if everything is in place. This command is **NO guarantee** that all
+  policies are enforced since it's easy for developers to work around the checks
+  performed by this command.
+
+Log-out after password changes
+------------------------------
+
+The ``AuthenticationPolicyMiddleware`` will log-off all sessions for a specific
+user when the password of the user changes. This is enforced by storing a hash
+of the users password field (which is stored using a Django password hasher) in
+its session. This value will be compared to the original password field for
+each sub-sequent request, and when it doesn't match, the session will be flushed
+and the user will be logged-off.
+
+Views which change the users password but do not want to log-off the user should
+call ``django.password_change.update_password(request.session, request.user)``
+directly after the user changes its' password. All *other* sessions for the
+user will still be flushed (which is the intended behaviour of this feature).
+
+This behaviour can be disabled by setting ``LOGOUT_AFTER_PASSWORD_CHANGE`` to
+``False``.
