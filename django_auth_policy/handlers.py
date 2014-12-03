@@ -1,4 +1,5 @@
 import logging
+import warnings
 
 from django.conf import settings
 from django.utils.module_loading import import_by_path
@@ -134,26 +135,22 @@ class AuthenticationPolicyHandler(object):
 
         return attempt
 
-    def post_auth_checks(self, attempt, skip_auth_success=False):
+    def post_auth_checks(self, attempt):
         """ Policy checks after the user has been authenticated.
-        The attempt must now have a `user`
+        The attempt must now have a `user` instance set.
+
+        Raises ValidationError for failed login attempts.
         """
         assert attempt.user is not None
 
         for pol in self._policies:
             pol.post_auth_check(attempt)
 
-        if not skip_auth_success:
-            logger.warning(u'Deprecation warning: Future versions of '
-                    'Django Auth Policy\'s '
-                    'handlers.AuthenticationPolicyHandler.post_auth_checks '
-                    'will no longer run auth_success.')
-            return self.auth_success(attempt)
-        else:
-            return attempt
+        return attempt
 
     def auth_success(self, attempt):
-        """ Run this when authentication was successful
+        """ Run this when authentication was successful, i.e. after
+        `post_auth_checks`.
         """
         logger.info(u'Authentication success, username=%s, address=%s',
                     attempt.username, attempt.source_address)

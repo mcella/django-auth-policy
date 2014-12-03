@@ -43,6 +43,9 @@ Release 1.0
 * Add command to remove db records older than a specified time (specified in
   settings file or overrule on command line).
 
+* Submit complete request headers dict to pre_auth_checks instead of only
+  `remove_addr` and `host`?
+
 Release 1.1
 -----------
 
