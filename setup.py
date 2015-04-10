@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 
-install_requires = ['Django>=1.6']
+install_requires = ['Django>=1.7']
 try:
     from collections import OrderedDict
 except ImportError:
@@ -11,14 +11,14 @@ except ImportError:
 
 setup(
     name='django-auth-policy',
-    version='0.9.7',
+    version='0.9.8',
     zip_safe=False,
     description='Enforces a couple of common authentication policies for the '
                 'Django web framework.',
-    author='Fox-IT B.V.',
-    author_email='fox@fox-it.com',
+    author='Rudolph Froger',
+    author_email='rudolphfroger@dreamsolution.nl',
     maintainer='Rudolph Froger',
-    maintainer_email='rudolphfroger@estrate.nl',
+    maintainer_email='rudolphfroger@dreamsolution.nl',
     url='https://github.com/rudolphfroger/django-auth-policy',
     license='BSD',
     packages=find_packages(exclude=["testsite", "testsite.*", "*.tests", "*.tests.*", "tests.*", "tests"]),
