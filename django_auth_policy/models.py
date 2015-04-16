@@ -22,8 +22,8 @@ class LoginAttemptManager(models.Manager):
         if addresses:
             selection |= models.Q(source_address__in=set(addresses))
 
-        return self.get_query_set().filter(selection,
-                                           lockout=True).update(lockout=False)
+        return self.get_queryset().filter(selection,
+                lockout=True).update(lockout=False)
 
     def unlock_queryset(self, queryset):
         """ Unlocks all usernames and IP addresses found in ``queryset``
