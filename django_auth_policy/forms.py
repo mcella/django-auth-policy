@@ -30,7 +30,13 @@ class StrictAuthenticationForm(AuthenticationForm):
             request, *args, **kwargs)
 
     def clean(self):
-        remote_addr = self.request.META['REMOTE_ADDR']
+        remote_addr = (self.request.META.get('HTTP_X_REAL_IP') or
+                self.request.META.get('REMOTE_ADDR'))
+        if not remote_addr:
+            logger.warning('Could not reliably determine source address',
+                    extra={'path': self.request.get_full_path()})
+            remote_addr = '127.0.0.1'
+
         host = self.request.get_host()
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
