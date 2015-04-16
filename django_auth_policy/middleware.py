@@ -125,7 +125,7 @@ class LoginRequiredMiddleware(object):
     """
     login_path = reverse(getattr(settings, 'LOGIN_VIEW_NAME', 'login'))
     logout_path = reverse(getattr(settings, 'LOGOUT_VIEW_NAME', 'logout'))
-    public_urls = getattr(settings, 'PUBLIC_URLS', [])
+    public_urls = list(getattr(settings, 'PUBLIC_URLS', []))
     public_urls.append(login_path)
     public_urls.append(logout_path)
 
