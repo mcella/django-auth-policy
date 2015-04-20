@@ -59,8 +59,7 @@ class StrictAuthenticationForm(AuthenticationForm):
                 attempt.user = self.user_cache
                 attempt.save(update_fields=['user'])
 
-                attempt = self.auth_policy.post_auth_checks(attempt,
-                        skip_auth_success=True)
+                attempt = self.auth_policy.post_auth_checks(attempt)
                 attempt = self.auth_policy.auth_success(attempt)
 
                 self.password_change_policy.update_session(self.request,
