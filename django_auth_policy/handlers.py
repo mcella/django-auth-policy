@@ -2,7 +2,7 @@ import logging
 import warnings
 
 from django.conf import settings
-from django.utils.module_loading import import_by_path
+from django.utils.module_loading import import_string
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
@@ -23,7 +23,7 @@ class PasswordStrengthPolicyHandler(object):
             return
 
         for policy_path, kwargs in settings.PASSWORD_STRENGTH_POLICIES:
-            policy_class = import_by_path(policy_path)
+            policy_class = import_string(policy_path)
             policy = policy_class(**kwargs)
 
             self._policies.append(policy)
@@ -56,7 +56,7 @@ class PasswordChangePolicyHandler(object):
             return
 
         for policy_path, kwargs in settings.PASSWORD_CHANGE_POLICIES:
-            policy_class = import_by_path(policy_path)
+            policy_class = import_string(policy_path)
             policy = policy_class(**kwargs)
 
             self._policies.append(policy)
@@ -103,7 +103,7 @@ class AuthenticationPolicyHandler(object):
             return
 
         for policy_path, kwargs in settings.AUTHENTICATION_POLICIES:
-            policy_class = import_by_path(policy_path)
+            policy_class = import_string(policy_path)
             policy = policy_class(**kwargs)
 
             self._policies.append(policy)
