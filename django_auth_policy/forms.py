@@ -1,14 +1,10 @@
 import logging
-try:
-    from collections import OrderedDict
-except ImportError:
-    # python 2.6 or earlier, use backport
-    from ordereddict import OrderedDict
+from collections import OrderedDict
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth import authenticate
-from django.contrib.auth.forms import AuthenticationForm
+from django.utils.text import capfirst
+from django.contrib.auth import authenticate, get_user_model
 
 from django_auth_policy.models import PasswordChange
 from django_auth_policy.handlers import (PasswordStrengthPolicyHandler,
@@ -19,15 +15,31 @@ from django_auth_policy.handlers import (PasswordStrengthPolicyHandler,
 logger = logging.getLogger(__name__)
 
 
-class StrictAuthenticationForm(AuthenticationForm):
+class StrictAuthenticationForm(forms.Form):
     auth_policy = AuthenticationPolicyHandler()
     password_change_policy = PasswordChangePolicyHandler()
+
+    username = forms.CharField(max_length=254)
+    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
+
+    error_messages = {
+        'invalid_login': _("Please enter a correct %(username)s and password. "
+                           "Note that both fields may be case-sensitive."),
+        'inactive': _("This account is inactive."),
+    }
+
 
     def __init__(self, request, *args, **kwargs):
         """ Make request argument required
         """
-        return super(StrictAuthenticationForm, self).__init__(
-            request, *args, **kwargs)
+        self.user_cache = None
+        self.request = request
+        super(StrictAuthenticationForm, self).__init__(*args, **kwargs)
+
+        UserModel = get_user_model()
+        self.username_field = UserModel._meta.get_field(UserModel.USERNAME_FIELD)
+        if self.fields['username'].label is None:
+            self.fields['username'].label = capfirst(self.username_field.verbose_name)
 
     def clean(self):
         remote_addr = (self.request.META.get('HTTP_X_REAL_IP') or
@@ -66,6 +78,15 @@ class StrictAuthenticationForm(AuthenticationForm):
                         self.user_cache)
 
         return self.cleaned_data
+
+    def get_user_id(self):
+        if self.user_cache:
+            return self.user_cache.id
+        return None
+
+    def get_user(self):
+        return self.user_cache
+
 
 
 class StrictSetPasswordForm(forms.Form):
