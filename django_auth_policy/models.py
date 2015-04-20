@@ -49,7 +49,7 @@ class LoginAttempt(models.Model):
     hostname = models.CharField(_('hostname'), max_length=100)
     successful = models.BooleanField(_('successful'), default=False)
     timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True,
-                                     default=timezone.now, db_index=True)
+            db_index=True)
     # User fields are only filled at successful login attempts:
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
             verbose_name=_('user'), blank=True, null=True,
@@ -111,8 +111,7 @@ class PasswordChange(models.Model):
             verbose_name=_('user'), blank=True, null=True,
             on_delete=models.SET_NULL)
     user_repr = models.CharField(_('user'), max_length=200)
-    timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True,
-                                     default=timezone.now)
+    timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True)
     successful = models.BooleanField(_('successful'), default=False)
     # 'is_temporary is used by 'user managers' to set a temporary password
     # for a user, this password must be changed at first login
