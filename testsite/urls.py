@@ -1,10 +1,12 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
+from django.contrib import admin
 
 from django_auth_policy.forms import (StrictAuthenticationForm,
                                       StrictPasswordChangeForm)
 
 
 urlpatterns = patterns('',
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^login/$', 'testsite.views.login', name='login',
         kwargs={'authentication_form': StrictAuthenticationForm,
                 'template_name': 'login.html'}),
