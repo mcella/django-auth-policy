@@ -18,7 +18,9 @@ logger = logging.getLogger(__name__)
 
 class LoginAttemptAdmin(admin.ModelAdmin):
     readonly_fields = ('username', 'source_address', 'hostname', 'successful',
-                       'user', 'timestamp', 'lockout')
+            'user', 'timestamp', 'lockout')
+    fields = ('username', 'source_address', 'hostname', 'successful', 'user',
+            'timestamp', 'lockout')
     list_display = ('username', 'source_address', 'successful', 'timestamp')
     list_filter = ('successful',)
     search_fields = ('username',)
@@ -58,6 +60,7 @@ class LoginAttemptAdmin(admin.ModelAdmin):
 
 class PasswordChangeAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'timestamp', 'successful', 'is_temporary')
+    fields = ('user', 'timestamp', 'successful', 'is_temporary')
     list_display = ('user', 'successful', 'is_temporary', 'timestamp')
     list_filter = ('successful', 'is_temporary')
     date_hierarchy = 'timestamp'
@@ -83,6 +86,7 @@ class PasswordChangeAdmin(admin.ModelAdmin):
 
 class UserChangeAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'timestamp', 'by_user')
+    fields = ('user', 'timestamp', 'by_user')
     list_display = ('user', 'by_user', 'timestamp')
     date_hierarchy = 'timestamp'
 
