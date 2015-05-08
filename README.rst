@@ -1,3 +1,7 @@
+
+A future version of this package will get a new name and will become Django
+independent, with an optional Django integration module(s).
+
 Django Auth Policy is a set of tools to enforce various authentication
 policies when using the Django Web Framework (http://www.djangoproject.com/).
 
