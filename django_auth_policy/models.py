@@ -121,7 +121,7 @@ class PasswordChange(models.Model):
     # for a user, this password must be changed at first login
     is_temporary = models.BooleanField(_('is temporary'), default=False)
     # Optionally keep password a history of hashes to prevent users from
-    # reusing old passwords. FIXME This has *NOT* been implemented
+    # reusing old passwords.
     password = models.CharField(_('password'), max_length=128, default='',
                                 editable=False)
 
