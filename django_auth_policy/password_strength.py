@@ -206,7 +206,7 @@ class PasswordLimitReuse(PasswordStrengthPolicy):
     max_pw_history = 3
     text = _('Password must be different than your last password.')
     plural_text = _('Passwords must not be one of your last {max_pw_history} '
-                    'password(s).')
+                    'passwords.')
 
     def validate(self, value, user=None):
         if user is None:
