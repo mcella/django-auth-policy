@@ -8,11 +8,13 @@ from django import http
 from django_auth_policy.handlers import PasswordChangePolicyHandler
 from django_auth_policy.forms import StrictPasswordChangeForm
 from django_auth_policy.password_change import update_password, password_changed
+from django_auth_policy.settings import (PASSWORD_CHANGE_VIEW_NAME,
+                                         LOGIN_VIEW_NAME,
+                                         LOGOUT_VIEW_NAME,
+                                         PUBLIC_URLS,
+                                         LOGOUT_AFTER_PASSWORD_CHANGE)
 
 logger = logging.getLogger(__name__)
-
-LOGOUT_AFTER_PASSWORD_CHANGE = getattr(settings,
-        'LOGOUT_AFTER_PASSWORD_CHANGE', True)
 
 
 class AuthenticationPolicyMiddleware(object):
@@ -25,10 +27,9 @@ class AuthenticationPolicyMiddleware(object):
     handled by Django without the policy being enforced.
     """
 
-    change_password_path = reverse(getattr(
-        settings, 'ENFORCED_PASSWORD_CHANGE_VIEW_NAME', 'password_change'))
-    login_path = reverse(getattr(settings, 'LOGIN_VIEW_NAME', 'login'))
-    logout_path = reverse(getattr(settings, 'LOGOUT_VIEW_NAME', 'logout'))
+    change_password_path = reverse(PASSWORD_CHANGE_VIEW_NAME)
+    login_path = reverse(LOGIN_VIEW_NAME)
+    logout_path = reverse(LOGOUT_VIEW_NAME)
 
     password_change_policy_handler = PasswordChangePolicyHandler()
 
@@ -123,9 +124,9 @@ class AuthenticationPolicyMiddleware(object):
 class LoginRequiredMiddleware(object):
     """ Middleware which enforces authentication for all requests.
     """
-    login_path = reverse(getattr(settings, 'LOGIN_VIEW_NAME', 'login'))
-    logout_path = reverse(getattr(settings, 'LOGOUT_VIEW_NAME', 'logout'))
-    public_urls = list(getattr(settings, 'PUBLIC_URLS', []))
+    login_path = reverse(LOGIN_VIEW_NAME)
+    logout_path = reverse(LOGOUT_VIEW_NAME)
+    public_urls = list(PUBLIC_URLS)
     public_urls.append(login_path)
     public_urls.append(logout_path)
 
