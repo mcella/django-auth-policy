@@ -129,7 +129,6 @@ class LoginRequiredMiddleware(object):
     logout_path = reverse(LOGOUT_VIEW_NAME)
     public_urls = list(PUBLIC_URLS)
     public_urls.append(login_path)
-    public_urls.append(logout_path)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if not hasattr(request, 'user'):
