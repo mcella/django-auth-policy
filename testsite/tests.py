@@ -44,7 +44,7 @@ class LoginTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             username='rf',
-            email='rf@example.rf',
+            email='rf@example.org',
             password='password')
 
         self.factory = RequestFactory()
@@ -65,7 +65,7 @@ class LoginTests(TestCase):
             'username': 'rf', 'password': 'password'})
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(SESSION_KEY in self.client.session)
-        self.assertEqual(self.client.session[SESSION_KEY], self.user.id)
+        self.assertEqual(self.client.session[SESSION_KEY], unicode(self.user.id))
 
         attempts = LoginAttempt.objects.filter(username=self.user.username,
                                                successful=True)
@@ -260,7 +260,7 @@ class UserExpiryTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             username='rf',
-            email='rf@example.rf',
+            email='rf@example.org',
             password='password')
 
         self.factory = RequestFactory()
@@ -314,7 +314,7 @@ class PasswordChangeTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             username='rf',
-            email='rf@example.rf',
+            email='rf@example.org',
             password='password')
 
         self.factory = RequestFactory()
@@ -343,7 +343,7 @@ class PasswordChangeTests(TestCase):
             'username': 'rf', 'password': 'password'}, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(SESSION_KEY in self.client.session)
-        self.assertEqual(self.client.session[SESSION_KEY], self.user.id)
+        self.assertEqual(self.client.session[SESSION_KEY], unicode(self.user.id))
         self.assertTrue('password_change_enforce' in self.client.session)
         self.assertFalse(self.client.session['password_change_enforce'])
         self.assertFalse(self.client.session['password_change_enforce_msg'])
@@ -369,7 +369,7 @@ class PasswordChangeTests(TestCase):
             'username': 'rf', 'password': 'password'}, follow=True)
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(SESSION_KEY in self.client.session)
-        self.assertEqual(self.client.session[SESSION_KEY], self.user.id)
+        self.assertEqual(self.client.session[SESSION_KEY], unicode(self.user.id))
         self.assertTrue('password_change_enforce' in self.client.session)
         self.assertEqual(self.client.session['password_change_enforce'],
                          'password-expired')
@@ -427,7 +427,7 @@ class PasswordChangeTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(SESSION_KEY in self.client.session)
         self.assertTrue('password_change_enforce' in self.client.session)
-        self.assertEqual(self.client.session[SESSION_KEY], self.user.id)
+        self.assertEqual(self.client.session[SESSION_KEY], unicode(self.user.id))
         self.assertEqual(self.client.session['password_change_enforce'],
                          'password-temporary')
         self.assertEqual(self.client.session['password_change_enforce_msg'],
@@ -474,7 +474,7 @@ class PasswordStrengthTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             username='rf',
-            email='rf@example.rf',
+            email='rf@example.org',
             password='password')
 
         self.factory = RequestFactory()
@@ -652,7 +652,7 @@ class LoginRequiredMiddlewareTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             username='rf',
-            email='rf@example.rf',
+            email='rf@example.org',
             password='password')
 
         self.factory = RequestFactory()
@@ -663,12 +663,12 @@ class LoginRequiredMiddlewareTests(TestCase):
         # Authenticated request:
         req = self.factory.get(reverse('another_view'))
         req.user = self.user
-        self.assertEqual(mw.process_request(req), None)
+        self.assertEqual(mw.process_view(req, None, None, None), None)
 
         # Unauthenticated request:
         req = self.factory.get(reverse('another_view'))
         req.user = AnonymousUser()
-        resp = mw.process_request(req)
+        resp = mw.process_view(req, None, None, None)
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'id_username')
         self.assertContains(resp, 'id_password')
