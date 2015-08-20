@@ -35,6 +35,7 @@ from django_auth_policy.password_strength import (PasswordMinLength,
                                                   PasswordDisallowedTerms,
                                                   PasswordLimitReuse)
 from django_auth_policy.middleware import LoginRequiredMiddleware
+from testsite.views import login_not_required_view
 
 
 class LoginTests(TestCase):
@@ -679,13 +680,13 @@ class LoginRequiredMiddlewareTests(TestCase):
         req = self.factory.get(reverse('another_view'))
         req.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
         req.user = self.user
-        self.assertEqual(mw.process_request(req), None)
+        self.assertEqual(mw.process_view(req, None, None, None), None)
 
         # Unauthenticated request:
         req = self.factory.get(reverse('another_view'))
         req.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
         req.user = AnonymousUser()
-        resp = mw.process_request(req)
+        resp = mw.process_view(req, None, None, None)
         self.assertEqual(resp.status_code, 401)
 
     def test_statics(self):
@@ -694,13 +695,13 @@ class LoginRequiredMiddlewareTests(TestCase):
         # Unauthenticated request that should have been handled by web server:
         req = self.factory.get(settings.STATIC_URL + 'logo.png')
         req.user = AnonymousUser()
-        resp = mw.process_request(req)
+        resp = mw.process_view(req, None, None, None)
         self.assertEqual(resp.status_code, 401)
 
         # Unauthenticated request that should have been handled by web server:
         req = self.factory.get(settings.MEDIA_URL + 'logo.png')
         req.user = AnonymousUser()
-        resp = mw.process_request(req)
+        resp = mw.process_view(req, None, None, None)
         self.assertEqual(resp.status_code, 401)
 
     @override_settings(DEBUG=True)
@@ -711,11 +712,24 @@ class LoginRequiredMiddlewareTests(TestCase):
         # Unauthenticated request that should have been handled by web server:
         req = self.factory.get(settings.STATIC_URL + 'logo.png')
         req.user = AnonymousUser()
-        resp = mw.process_request(req)
+        resp = mw.process_view(req, None, None, None)
         self.assertEqual(resp, None)
 
         # Unauthenticated request that should have been handled by web server:
         req = self.factory.get(settings.MEDIA_URL + 'logo.png')
         req.user = AnonymousUser()
-        resp = mw.process_request(req)
+        resp = mw.process_view(req, None, None, None)
         self.assertEqual(resp, None)
+
+    def test_public_view(self):
+        mw = LoginRequiredMiddleware()
+
+        # Authenticated request:
+        req = self.factory.get(reverse('login_not_required_view'))
+        req.user = self.user
+        self.assertEqual(mw.process_view(req, login_not_required_view, [], {}), None)
+
+        # Unauthenticated request:
+        req = self.factory.get(reverse('login_not_required_view'))
+        req.user = AnonymousUser()
+        self.assertEqual(mw.process_view(req, login_not_required_view, [], {}), None)

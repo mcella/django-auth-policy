@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import REDIRECT_FIELD_NAME, login as auth_login
 from django.contrib.sites.models import get_current_site
 
+from django_auth_policy.decorators import login_not_required
 from django_auth_policy.forms import StrictAuthenticationForm
 
 
@@ -69,6 +70,13 @@ def login_required_view(request):
     """ View used in tests
     """
     return HttpResponse('ok')
+
+
+@login_not_required
+def login_not_required_view(request):
+    """ View used in tests
+    """
+    return HttpResponse('login not required!')
 
 
 def another_view(request):

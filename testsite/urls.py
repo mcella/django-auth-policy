@@ -19,5 +19,6 @@ urlpatterns = patterns('',
                 'post_change_redirect': '/',
                 }),
     url(r'^$', 'testsite.views.login_required_view', name='login_required_view'),
+    url(r'^signup/$', 'testsite.views.login_not_required_view', name='login_not_required_view'),
     url(r'^another/$', 'testsite.views.another_view', name='another_view'),
 )
