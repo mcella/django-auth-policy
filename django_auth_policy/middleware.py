@@ -124,13 +124,14 @@ class AuthenticationPolicyMiddleware(object):
 class LoginRequiredMiddleware(object):
     """ Middleware which enforces authentication for all requests.
     """
+    LOGIN_NOT_REQUIRED_MARKER = 'django_auth_policy__login_not_required'
     login_path = reverse(LOGIN_VIEW_NAME)
     logout_path = reverse(LOGOUT_VIEW_NAME)
     public_urls = list(PUBLIC_URLS)
     public_urls.append(login_path)
     public_urls.append(logout_path)
 
-    def process_request(self, request):
+    def process_view(self, request, view_func, view_args, view_kwargs):
         if not hasattr(request, 'user'):
             raise Exception('Install Authentication middleware before '
                             'LoginRequiredMiddleware')
@@ -140,6 +141,10 @@ class LoginRequiredMiddleware(object):
 
         # Do not require authentication for certain URLs
         if request.path in self.public_urls:
+            return None
+
+        # Per-view exceptions
+        if getattr(view_func, self.LOGIN_NOT_REQUIRED_MARKER, False):
             return None
 
         # Django should not serve STATIC files in production, but for
@@ -170,3 +175,9 @@ class LoginRequiredMiddleware(object):
 
         view_func, args, kwargs = resolve(self.login_path)
         return requires_csrf_token(view_func)(request, *args, **kwargs)
+
+
+def login_not_required(view):
+    """Decorator to bypass LoginRequiredMiddleware for a view."""
+    setattr(view, LoginRequiredMiddleware.LOGIN_NOT_REQUIRED_MARKER, True)
+    return view
