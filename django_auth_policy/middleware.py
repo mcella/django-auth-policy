@@ -8,11 +8,14 @@ from django import http
 from django_auth_policy.handlers import PasswordChangePolicyHandler
 from django_auth_policy.forms import StrictPasswordChangeForm
 from django_auth_policy.password_change import update_password, password_changed
-from django_auth_policy.settings import (PASSWORD_CHANGE_VIEW_NAME,
-                                         LOGIN_VIEW_NAME,
-                                         LOGOUT_VIEW_NAME,
-                                         PUBLIC_URLS,
-                                         LOGOUT_AFTER_PASSWORD_CHANGE)
+from django_auth_policy.settings import (
+    LOGIN_NOT_REQUIRED_MARKER,
+    LOGIN_VIEW_NAME,
+    LOGOUT_AFTER_PASSWORD_CHANGE,
+    LOGOUT_VIEW_NAME,
+    PASSWORD_CHANGE_VIEW_NAME,
+    PUBLIC_URLS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +127,6 @@ class AuthenticationPolicyMiddleware(object):
 class LoginRequiredMiddleware(object):
     """ Middleware which enforces authentication for all requests.
     """
-    LOGIN_NOT_REQUIRED_MARKER = 'django_auth_policy__login_not_required'
     login_path = reverse(LOGIN_VIEW_NAME)
     logout_path = reverse(LOGOUT_VIEW_NAME)
     public_urls = list(PUBLIC_URLS)
@@ -143,7 +145,7 @@ class LoginRequiredMiddleware(object):
             return None
 
         # Per-view exceptions
-        if getattr(view_func, self.LOGIN_NOT_REQUIRED_MARKER, False):
+        if getattr(view_func, LOGIN_NOT_REQUIRED_MARKER, False):
             return None
 
         # Django should not serve STATIC files in production, but for
@@ -174,9 +176,3 @@ class LoginRequiredMiddleware(object):
 
         view_func, args, kwargs = resolve(self.login_path)
         return requires_csrf_token(view_func)(request, *args, **kwargs)
-
-
-def login_not_required(view):
-    """Decorator to bypass LoginRequiredMiddleware for a view."""
-    setattr(view, LoginRequiredMiddleware.LOGIN_NOT_REQUIRED_MARKER, True)
-    return view

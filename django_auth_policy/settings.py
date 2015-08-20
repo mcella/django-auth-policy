@@ -32,3 +32,9 @@ TEMP_PASSWORD_CHARS = getattr(settings, 'TEMP_PASSWORD_CHARS',
 # password change by default. Set this to False to disable automatic logouts.
 LOGOUT_AFTER_PASSWORD_CHANGE = getattr(settings,
                                        'LOGOUT_AFTER_PASSWORD_CHANGE', True)
+
+
+# Attribute put onto views by the login_not_required decorator.
+LOGIN_NOT_REQUIRED_MARKER = getattr(settings,
+                                    'LOGIN_NOT_REQUIRED_MARKER',
+                                    'django_auth_policy__login_not_required')
