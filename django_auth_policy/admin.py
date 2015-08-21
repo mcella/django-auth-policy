@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 
 class LoginAttemptAdmin(admin.ModelAdmin):
     readonly_fields = ('username', 'source_address', 'hostname', 'successful',
-            'user', 'timestamp', 'lockout')
+                       'user', 'timestamp', 'lockout')
     fields = ('username', 'source_address', 'hostname', 'successful', 'user',
-            'timestamp', 'lockout')
+              'timestamp', 'lockout')
     list_display = ('username', 'source_address', 'successful', 'timestamp')
     list_filter = ('successful',)
     search_fields = ('username',)

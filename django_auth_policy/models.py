@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
 
@@ -26,8 +25,8 @@ class LoginAttemptManager(models.Manager):
         if addresses:
             selection |= models.Q(source_address__in=set(addresses))
 
-        return self.get_queryset().filter(selection,
-                lockout=True).update(lockout=False)
+        return self.get_queryset().filter(
+            selection, lockout=True).update(lockout=False)
 
     def unlock_queryset(self, queryset):
         """ Unlocks all usernames and IP addresses found in ``queryset``
@@ -53,13 +52,11 @@ class LoginAttempt(models.Model):
     hostname = models.CharField(_('hostname'), max_length=100)
     successful = models.BooleanField(_('successful'), default=False)
     timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True,
-            db_index=True)
+                                     db_index=True)
     # User fields are only filled at successful login attempts:
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-            verbose_name=_('user'), blank=True, null=True,
-            on_delete=models.SET_NULL)
-    user_repr = models.CharField(_('user'), blank=True,
-            max_length=200)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
+                             blank=True, null=True, on_delete=models.SET_NULL)
+    user_repr = models.CharField(_('user'), blank=True, max_length=200)
     # This is enabled for all failed login attempts. It is reset for every
     # successful login and can be reset by 'user admins'.
     lockout = models.BooleanField(_('lockout'), default=True,
@@ -73,7 +70,7 @@ class LoginAttempt(models.Model):
         ordering = ('-id',)
         permissions = (
             ('unlock', _('Unlock by username or IP address')),
-            )
+        )
 
     def save(self, *args, **kwargs):
         if self.user_id is not None and not self.user_repr:
@@ -106,9 +103,8 @@ class PasswordChangeAdmin(models.Manager):
 
 
 class PasswordChange(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-            verbose_name=_('user'), blank=True, null=True,
-            on_delete=models.SET_NULL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
+                             blank=True, null=True, on_delete=models.SET_NULL)
     user_repr = models.CharField(_('user'), max_length=200)
     timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True)
     successful = models.BooleanField(_('successful'), default=False)
@@ -142,9 +138,8 @@ class PasswordChange(models.Model):
 
 
 class UserChange(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-            verbose_name=_('user'), blank=True, null=True,
-            on_delete=models.SET_NULL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
+                             blank=True, null=True, on_delete=models.SET_NULL)
     user_repr = models.CharField(_('user'), max_length=200)
     timestamp = models.DateTimeField(_('timestamp'), auto_now_add=True)
     by_user = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -167,7 +162,7 @@ class UserChange(models.Model):
 
         if self.by_user_id is not None and not self.by_user_repr:
             self.by_user_repr = (self.by_user.get_username()[:200] or
-                    'NO USERNAME')
+                                 'NO USERNAME')
             if kwargs.get('update_fields'):
                 kwargs['update_fields'].append('by_user_repr')
 

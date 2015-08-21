@@ -96,7 +96,7 @@ class StrictUserAdmin(UserAdmin):
                 name='set_temporary_password'),
             url(r'^(\d+)/password/$',
                 self.admin_site.admin_view(self.user_change_password))
-            )
+        )
         return my_urls + urls
 
     def temporary_password_action(self, request, queryset):

@@ -28,7 +28,6 @@ class StrictAuthenticationForm(forms.Form):
         'inactive': _("This account is inactive."),
     }
 
-
     def __init__(self, request, *args, **kwargs):
         """ Make request argument required
         """
@@ -43,10 +42,10 @@ class StrictAuthenticationForm(forms.Form):
 
     def clean(self):
         remote_addr = (self.request.META.get('HTTP_X_REAL_IP') or
-                self.request.META.get('REMOTE_ADDR'))
+                       self.request.META.get('REMOTE_ADDR'))
         if not remote_addr:
             logger.warning('Could not reliably determine source address',
-                    extra={'path': self.request.get_full_path()})
+                           extra={'path': self.request.get_full_path()})
             remote_addr = '127.0.0.1'
 
         host = self.request.get_host()
@@ -63,10 +62,10 @@ class StrictAuthenticationForm(forms.Form):
                             'address=%s, invalid authentication.',
                             attempt.username, attempt.source_address)
                 raise forms.ValidationError(
-                        self.error_messages['invalid_login'],
-                        code='invalid_login',
-                        params={'username': self.username_field.verbose_name},
-                        )
+                    self.error_messages['invalid_login'],
+                    code='invalid_login',
+                    params={'username': self.username_field.verbose_name},
+                )
             else:
                 attempt.user = self.user_cache
                 attempt.save(update_fields=['user'])
@@ -74,8 +73,8 @@ class StrictAuthenticationForm(forms.Form):
                 attempt = self.auth_policy.post_auth_checks(attempt)
                 attempt = self.auth_policy.auth_success(attempt)
 
-                self.password_change_policy.update_session(self.request,
-                        self.user_cache)
+                self.password_change_policy.update_session(
+                    self.request, self.user_cache)
 
         return self.cleaned_data
 
@@ -88,12 +87,11 @@ class StrictAuthenticationForm(forms.Form):
         return self.user_cache
 
 
-
 class StrictSetPasswordForm(forms.Form):
     password_strength_policy = PasswordStrengthPolicyHandler()
     error_messages = {
         'password_mismatch': _("The two password fields didn't match."),
-        }
+    }
     new_password1 = forms.CharField(label=_("New password"),
                                     widget=forms.PasswordInput)
     new_password2 = forms.CharField(label=_("New password confirmation"),
@@ -149,7 +147,7 @@ class StrictPasswordChangeForm(StrictSetPasswordForm):
                                 "Please enter it again."),
         'password_unchanged': _("The new password must not be the same as "
                                 "the old password"),
-        }
+    }
     old_password = forms.CharField(label=_("Old password"),
                                    widget=forms.PasswordInput)
 

@@ -49,7 +49,7 @@ class AuthenticationPolicyMiddleware(object):
         # Check if users' password has been changed, and then logout user.
         # To prevent logout at password change views call the
         # `update_password` function in that view
-        if not 'password_hash' in request.session:
+        if 'password_hash' not in request.session:
             update_password(request.session, request.user)
 
         # Log out disabled users
@@ -150,8 +150,8 @@ class LoginRequiredMiddleware(object):
 
         # Django should not serve STATIC files in production, but for
         # DEBUG mode this should be no problem (development)
-        if (settings.STATIC_URL and
-            request.path.startswith(settings.STATIC_URL)):
+        if settings.STATIC_URL and \
+                request.path.startswith(settings.STATIC_URL):
 
             if settings.DEBUG:
                 return None
@@ -161,8 +161,8 @@ class LoginRequiredMiddleware(object):
         # When serving MEDIA files through Django we will not display a login
         # form, but instead return HTTP 401, but for DEBUG mode this should be
         # no problem (development)
-        if (settings.MEDIA_URL and
-            request.path.startswith(settings.MEDIA_URL)):
+        if settings.MEDIA_URL and \
+                request.path.startswith(settings.MEDIA_URL):
 
             if settings.DEBUG:
                 return None

@@ -71,7 +71,7 @@ def password_changed(session, user):
     if not user.has_usable_password():
         return False
 
-    if not 'password_hash' in session:
+    if 'password_hash' not in session:
         update_password(session, user)
         return False
 

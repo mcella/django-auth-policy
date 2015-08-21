@@ -1,6 +1,5 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.core.exceptions import ValidationError
-from django.conf import settings
 
 from django_auth_policy.handlers import PasswordStrengthPolicyHandler
 
