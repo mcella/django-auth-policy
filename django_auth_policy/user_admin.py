@@ -17,8 +17,8 @@ from django_auth_policy import signals
 
 
 logger = logging.getLogger(__name__)
-
 user_model = get_user_model()
+label = '_'.join([user_model._meta.app_label, user_model._meta.model_name])
 
 
 class StrictUserCreationForm(forms.ModelForm):
@@ -118,7 +118,7 @@ class StrictUserAdmin(UserAdmin):
 
         if not request.GET.get('pk', False):
             return http.HttpResponseRedirect(
-                reverse('admin:auth_user_changelist'))
+                reverse('admin:{}_changelist'.format(label)))
 
         users = user_model.objects.filter(pk__in=request.GET.getlist('pk'))
         if request.method == 'POST':
@@ -131,13 +131,17 @@ class StrictUserAdmin(UserAdmin):
                                                     request=request,
                                                     password=password)
 
-            return template.response.TemplateResponse(request,
+            return template.response.TemplateResponse(
+                request,
                 'admin/django_auth_policy/set_temporary_password.html',
-                {'passwords': passwords})
+                {'passwords': passwords,
+                 'changelist_url': reverse('admin:{}_changelist'.format(label))})
 
-        return template.response.TemplateResponse(request,
+        return template.response.TemplateResponse(
+            request,
             'admin/django_auth_policy/confirm_temporary_password.html',
-            {'for_users': users})
+            {'for_users': users,
+             'changelist_url': reverse('admin:{}_changelist'.format(label))})
 
     def save_model(self, request, obj, form, change):
         obj.save()
