@@ -71,6 +71,8 @@ class StrictUserAdmin(UserAdmin):
         actions = super(StrictUserAdmin, self).get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
+        if not request.user.has_perm('django_auth_policy.unlock'):
+            del actions['unlock_username']
         return actions
 
     def unlock_username(self, request, queryset):
