@@ -134,14 +134,22 @@ class StrictUserAdmin(UserAdmin):
             return template.response.TemplateResponse(
                 request,
                 'admin/django_auth_policy/set_temporary_password.html',
-                {'passwords': passwords,
-                 'changelist_url': reverse('admin:{}_changelist'.format(label))})
+                dict(self.admin_site.each_context(request),
+                     **{'title': _('Temporary password'),
+                        'opts': self.model._meta,
+                        'passwords': passwords,
+                        'changelist_url': \
+                                reverse('admin:{}_changelist'.format(label))}))
 
         return template.response.TemplateResponse(
             request,
             'admin/django_auth_policy/confirm_temporary_password.html',
-            {'for_users': users,
-             'changelist_url': reverse('admin:{}_changelist'.format(label))})
+            dict(self.admin_site.each_context(request),
+                 **{'title': _('Temporary password'),
+                    'opts': self.model._meta,
+                    'for_users': users,
+                    'changelist_url': \
+                                reverse('admin:{}_changelist'.format(label))}))
 
     def save_model(self, request, obj, form, change):
         obj.save()

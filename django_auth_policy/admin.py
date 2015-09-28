@@ -118,7 +118,7 @@ def admin_login(request, extra_context=None):
     return http.HttpResponseRedirect(reverse('login') + '?' + q)
 
 
-def admin_password_change(request):
+def admin_password_change(request, extra_context=None):
     """
     Handles the "change password" task -- both form display and validation.
     """
@@ -126,7 +126,9 @@ def admin_password_change(request):
     defaults = {
         'current_app': admin.site.name,
         'post_change_redirect': to_url,
-        'password_change_form': StrictPasswordChangeForm
+        'password_change_form': StrictPasswordChangeForm,
+        'extra_context': dict(admin.site.each_context(request),
+                              **(extra_context or {})),
     }
     if admin.site.password_change_template is not None:
         defaults['template_name'] = admin.site.password_change_template
