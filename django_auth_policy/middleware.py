@@ -58,8 +58,9 @@ class AuthenticationPolicyMiddleware(object):
             return self.logout(request)
 
         # Do not do password change for certain URLs
-        if request.path in (self.change_password_path, self.login_path,
-                            self.logout_path):
+        if request.path_info in (self.change_password_path,
+                                 self.login_path,
+                                 self.logout_path):
             return None
 
         # Check for 'enforce_password_change' in session set by login view
