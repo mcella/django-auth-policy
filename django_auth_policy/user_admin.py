@@ -60,7 +60,8 @@ class StrictUserAdmin(UserAdmin):
     add_fieldsets = ((None, {'classes': ('wide',),
                              'fields': ('username', 'email', 'first_name',
                                         'last_name')}),)
-    list_display = ('username', 'email', 'is_active', 'last_login', 'is_staff')
+    list_display = ('username', 'email', 'is_active', 'last_login', 'is_staff',
+                    'is_locked')
 
     actions = ['reactivate_users', 'unlock_username',
                'temporary_password_action']
@@ -74,6 +75,12 @@ class StrictUserAdmin(UserAdmin):
         if not request.user.has_perm('django_auth_policy.unlock'):
             del actions['unlock_username']
         return actions
+
+    def is_locked(self, obj):
+        return bool(LoginAttempt.objects.filter(username=obj.username,
+                                                lockout=True))
+    is_locked.boolean = True
+    is_locked.short_description = _('Locked')
 
     def unlock_username(self, request, queryset):
         LoginAttempt.objects.filter(username__in=queryset.values('username'),
