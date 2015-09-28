@@ -46,6 +46,14 @@ class AuthenticationPolicyMiddleware(object):
         if not request.user.is_authenticated():
             return None
 
+        if settings.STATIC_URL and \
+                request.path_info.startswith(settings.STATIC_URL):
+            return None
+
+        if settings.MEDIA_URL and \
+                request.path.startswith(settings.MEDIA_URL):
+            return None
+
         # Check if users' password has been changed, and then logout user.
         # To prevent logout at password change views call the
         # `update_password` function in that view
